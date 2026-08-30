@@ -1,0 +1,383 @@
+# Dataset registry: where each source comes from, how to read it, how much to keep.
+#
+# METHODS
+#   http      direct URL(s), auto-downloaded and extracted
+#   kaggle    kaggle datasets download -d <slug>   (needs ~/.kaggle/kaggle.json)
+#   gdown     Google Drive file id
+#   roboflow  Roboflow API (needs ROBOFLOW_API_KEY)
+#   fathomnet FathomNet REST API via fathomnet-py
+#   manual    you download it yourself; the script prints instructions and then
+#             verifies + extracts whatever you dropped in data/raw/_archives/
+#
+# Most marine datasets live behind Google Drive links or institutional
+# repositories with click-through licences. "manual" is the honest default for
+# those -- the downloader will not invent URLs it cannot verify.
+
+root: data/raw
+archives: data/raw/_archives
+
+# Global image geometry. Mirrors the OAK-D-Lite pipeline exactly:
+#   12MP 4:3 capture -> ISP downscale 640x480 -> WaterNet -> letterbox 640 -> YOLO
+# 640x480 is pixel-identical to the OAK-D-Lite depth map, so a detection box
+# maps onto depth with zero resampling.
+geometry:
+  width: 640
+  height: 480
+  fit: crop             # crop | pad  (crop preserves scale, pad preserves content)
+  min_box_visible: 0.3  # drop a box if cropping leaves <30% of it
+  jpeg_quality: 95
+
+split:
+  train: 0.80
+  val: 0.10
+  test: 0.10
+  seed: 1337
+  # Splits are assigned by GROUP (video / dive / site), never per-image.
+  # Random per-image splitting on video-derived data leaks near-duplicate
+  # adjacent frames across train and val and inflates mAP by tens of points.
+
+datasets:
+
+  # ---------------------------------------------------------------- benthic --
+  duo:
+    enabled: true
+    title: "DUO - Detecting Underwater Objects"
+    cite: "arXiv:2106.05681"
+    licence: "Research use; see repo"
+    sources:
+      - method: manual
+        expect: "DUO.zip"
+        note: |
+          1. Open https://github.com/chongweiliu/DUO
+          2. Follow the Google Drive link in the README.
+          3. Save the archive as data/raw/_archives/DUO.zip
+          Expected tree after extraction:
+            DUO/annotations/instances_train.json
+            DUO/annotations/instances_test.json
+            DUO/images/train/*.jpg
+    layout:
+      reader: coco
+      parts:
+        - ann: "DUO/annotations/instances_train.json"
+          images: "DUO/images/train"
+        - ann: "DUO/annotations/instances_test.json"
+          images: "DUO/images/test"
+    group: {mode: none}
+    stride: 1
+    cap: 2500
+    dedupe_phash: 6
+
+  # ------------------------------------------------------------ water column --
+  brackish:
+    enabled: true
+    title: "Brackish Dataset (AAU, Limfjorden)"
+    cite: "vap.aau.dk/the-brackish-dataset"
+    licence: "CC BY 4.0"
+    sources:
+      - method: kaggle
+        slug: "aalborguniversity/brackish-dataset"
+      - method: manual
+        expect: "brackish-dataset.zip"
+        note: |
+          https://www.kaggle.com/datasets/aalborguniversity/brackish-dataset
+          Save as data/raw/_archives/brackish-dataset.zip
+    # NOTE: the exact tree of the Kaggle mirror is unverified. Paths below are
+    # globs and are resolved against whatever was actually extracted, but run
+    #   python scripts/download_datasets.py --inspect brackish
+    # and correct them before trusting the counts. The AAU release ships AAU
+    # bbox, YOLO Darknet and COCO annotations; COCO is used here because the
+    # class-id ordering of the Darknet export is not documented.
+    layout:
+      reader: coco
+      parts:
+        - ann: "**/*train*.json"
+          images: "**/train*"
+        - ann: "**/*valid*.json"
+          images: "**/valid*"
+        - ann: "**/*test*.json"
+          images: "**/test*"
+    # 14,518 frames from 89 videos at 30fps -> heavy temporal redundancy.
+    group: {mode: regex, pattern: "^(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})"}
+    stride: 6
+    cap: 2500
+    dedupe_phash: 6
+
+  fathomnet:
+    enabled: true
+    title: "FathomNet (MBARI)"
+    cite: "Sci Rep 12, 15914 (2022)"
+    licence: "CC BY 4.0 per-image; verify before redistribution"
+    sources:
+      - method: fathomnet
+    # Deep-sea imagery: black water, hard ROV lighting. The domain gap vs a
+    # shallow amphibious robot is real, so this is diversity ballast, not core.
+    # Verify concept strings against the live API before bulk pulling:
+    #   python scripts/download_datasets.py --dataset fathomnet --list-concepts
+    # Concepts are chosen for MORPHOLOGICAL spread, not taxonomic coverage.
+    # Every one of these collapses to a single unified class, so the model
+    # learns "fish-shaped thing in water", not species. What buys generalisation
+    # is silhouette variety -- fusiform, elongate, flattened, globular,
+    # tapering-tail -- so the list spans body plans rather than clades.
+    concepts:
+      fish:
+        [Actinopterygii,          # coarse superclass: the diversity workhorse
+         Sebastes, Sebastolobus, Scorpaenidae,        # robust / spiny
+         Merlucciidae, Ophidiidae,                    # elongate
+         Macrouridae,                                 # tapering tail
+         Bathylagidae, Myctophidae,                   # small, large-eyed
+         "Anoplopoma fimbria", Zoarcidae,             # eel-like
+         Chauliodus, Melanocetus,                     # deep-sea predator forms
+         Careproctus,                                 # snailfish
+         Pleuronectiformes,                           # flatfish silhouette
+         Rajiformes, Chimaeriformes, Elasmobranchii]  # disc / cartilaginous
+      gelatinous:
+        [Scyphozoa, Hydrozoa, Ctenophora, Siphonophorae, Solmissus,
+         "Nanomia bijuga", Poralia, Beroe, "Aegina citrea", Atolla,
+         Salpida, Larvacea, Bolinopsis, Praya, Physonectae]
+      benthic_invert:
+        [Echinoidea, Asteroidea, Holothuroidea, Ophiuroidea, Crinoidea,
+         Brisingida, Decapoda, Munidopsis, Paguridae, Gastropoda, Bivalvia,
+         Octopoda, Actiniaria, Isopoda, Polychaeta]
+      flora: ["Macrocystis pyrifera", Algae, Phaeophyceae, Chlorophyta]
+      equipment: [equipment]
+      debris: [trash]
+      structure: [Porifera, Anthozoa, Scleractinia, Gorgonacea, Pennatulacea]
+    # Per-concept ceiling. Lower than before BECAUSE the list is longer: the
+    # same download budget now buys more body plans instead of more images of
+    # the same few. Raising this would deepen coverage of concepts already
+    # represented, which is not the axis that was short.
+    per_concept_cap: 400
+    # Download budget. Fetching is round-robin across concepts, so stopping
+    # early still leaves balanced coverage.
+    target_total: 12000
+    layout:
+      reader: coco
+      parts:
+        - ann: "fathomnet/annotations.json"
+          images: "fathomnet/images"
+    group: {mode: field, field: "dive"}
+    stride: 1
+    cap: 10000
+
+  # ------------------------------------------------------------------ debris --
+  trashcan:
+    enabled: true
+    title: "TrashCan 1.0 (UMN / JAMSTEC J-EDI)"
+    cite: "arXiv:2007.08097"
+    licence: "See UMN Digital Conservancy record"
+    sources:
+      - method: kaggle
+        slug: "mexwell/trashcan-1-0"
+      - method: manual
+        expect: "trashcan.zip"
+        note: |
+          Fallback: https://conservancy.umn.edu/handle/11299/214865
+          Use the *instance* version. Save as data/raw/_archives/trashcan.zip
+    layout:
+      reader: coco
+      parts:
+        - ann: "trashcan/instance_version/instances_train_trashcan.json"
+          images: "trashcan/instance_version/train"
+        - ann: "trashcan/instance_version/instances_val_trashcan.json"
+          images: "trashcan/instance_version/val"
+    # Sourced from ROV video; filenames carry the source dive id.
+    group: {mode: regex, pattern: "^([a-zA-Z0-9]+)_"}
+    stride: 1
+    cap: 6000
+    dedupe_phash: 5
+
+  trash_icra19:
+    enabled: true
+    title: "Trash-ICRA19"
+    licence: "See UMN Digital Conservancy record"
+    sources:
+      - method: manual
+        expect: "trash_icra19.zip"
+        note: |
+          https://conservancy.umn.edu/handle/11299/214366
+          Save as data/raw/_archives/trash_icra19.zip
+    layout:
+      reader: yolo
+      parts:
+        - ann: "trash_icra19/train/labels"
+          images: "trash_icra19/train/images"
+        - ann: "trash_icra19/val/labels"
+          images: "trash_icra19/val/images"
+      names: [plastic, bio, rov]
+    group: {mode: regex, pattern: "^([a-zA-Z0-9]+)_"}
+    stride: 3
+    cap: 3000
+    dedupe_phash: 5
+
+  flow:
+    enabled: true
+    title: "FloW-Img (floating waste, USV)"
+    licence: "Research use"
+    sources:
+      - method: manual
+        expect: "flow_img.zip"
+        note: |
+          https://github.com/ORCA-Uboat/FloW-Dataset
+          Save as data/raw/_archives/flow_img.zip
+    layout:
+      reader: coco
+      parts:
+        - ann: "flow/annotations/train.json"
+          images: "flow/images/train"
+    group: {mode: none}
+    stride: 1
+    cap: 2000
+
+  # ------------------------------------------------------- divers / structure --
+  suim:
+    enabled: true
+    title: "SUIM - Segmentation of Underwater IMagery"
+    licence: "MIT (verify)"
+    sources:
+      - method: manual
+        expect: "SUIM.zip"
+        note: |
+          https://github.com/xahidbuffon/SUIM  (Google Drive link in README)
+          Save as data/raw/_archives/SUIM.zip
+          Best value-per-image of the whole collection: divers, wrecks, robots,
+          reefs, fish and flora all in one 1525-image set.
+    layout:
+      reader: mask_rgb
+      parts:
+        - ann: "SUIM/train_val/masks"
+          images: "SUIM/train_val/images"
+        - ann: "SUIM/TEST/masks"
+          images: "SUIM/TEST/images"
+      # 3-bit RGB colour codes -> source label
+      palette:
+        "0,0,255": HD
+        "0,255,0": PF
+        "0,255,255": WR
+        "255,0,0": RO
+        "255,0,255": RI
+        "255,255,0": FV
+        "255,255,255": SR
+        "0,0,0": BW
+      min_area_frac: 0.0015   # ignore specks
+      max_area_frac: 0.60     # ignore full-frame regions (seafloor, open water)
+    group: {mode: none}
+    stride: 1
+    cap: null
+
+  vddc:
+    enabled: true
+    title: "VDD-C - Video Diver Dataset"
+    licence: "See UMN Digital Conservancy record"
+    sources:
+      - method: manual
+        expect: "vddc.zip"
+        note: |
+          https://conservancy.umn.edu/handle/11299/219383
+          Download the images + label archives (~8GB).
+          Save as data/raw/_archives/vddc.zip
+          Role here is PRIVACY FILTER, not safety -- hence the hard cap.
+    layout:
+      reader: voc
+      parts:
+        - ann: "vddc/annotations"
+          images: "vddc/images"
+    group: {mode: regex, pattern: "^([a-zA-Z]+\\d*)_"}
+    stride: 10
+    cap: 2500
+    dedupe_phash: 6
+
+  # ----------------------------------------------------------------- surface --
+  seaships:
+    enabled: true
+    title: "SeaShips (7000)"
+    licence: "Registration required; check terms before redistribution"
+    sources:
+      - method: manual
+        expect: "seaships.zip"
+        note: |
+          http://www.lmars.whu.edu.cn/prof_web/shaozhenfeng/datasets/
+          Registration may be required. Save as data/raw/_archives/seaships.zip
+    layout:
+      reader: voc
+      parts:
+        - ann: "SeaShips/Annotations"
+          images: "SeaShips/JPEGImages"
+    group: {mode: none}
+    stride: 1
+    cap: 5000
+
+  smd:
+    enabled: false     # .mat annotations over video; enable once you extract frames
+    title: "Singapore Maritime Dataset"
+    licence: "Research use"
+    sources:
+      - method: manual
+        expect: "smd.zip"
+        note: |
+          https://sites.google.com/site/dilipprasad/home/singapore-maritime-dataset
+          Annotations are MATLAB .mat over video files -- you must decode frames
+          first. Left disabled until you have an extracted frames+labels tree.
+    layout:
+      reader: yolo
+      parts:
+        - ann: "smd/labels"
+          images: "smd/images"
+      names: [Ferry, Buoy, "Vessel/ship", "Speed boat", Boat, Kayak, "Sail boat", "Swimming person", "Flying bird/plane", Other]
+    group: {mode: regex, pattern: "^(MVI_\\d+)"}
+    stride: 15
+    cap: 3000
+
+  mods:
+    enabled: true
+    title: "MODS / MODD2 (USV obstacle benchmark)"
+    cite: "ViCoS Lab"
+    licence: "Research use"
+    sources:
+      - method: manual
+        expect: "mods.zip"
+        note: |
+          https://vision.fe.uni-lj.si/public/mods/  (and github.com/bborja/modd)
+          This is the surface dataset with actual bounding boxes -- the thing
+          MaSTr1325 is not. Save as data/raw/_archives/mods.zip
+    layout:
+      reader: coco
+      parts:
+        - ann: "mods/annotations/mods.json"
+          images: "mods/images"
+    group: {mode: regex, pattern: "^(seq\\d+)"}
+    stride: 5
+    cap: 3000
+
+  # --------------------------------------------------------------- negatives --
+  mastr_neg:
+    enabled: true
+    title: "MaSTr1325 (negative mining only)"
+    cite: "Bovcon et al., IROS 2019"
+    licence: "Research use"
+    sources:
+      - method: manual
+        expect: "mastr1325.zip"
+        note: |
+          https://www.vicos.si/resources/mastr1325/
+          Download images + per-pixel labels.
+          Save as data/raw/_archives/mastr1325.zip
+          NOT used for boxes -- its "environment" class is one blob covering
+          shoreline, boats and buoys alike, which makes useless labels. Used
+          only to mine guaranteed object-free water/sky frames, which the
+          unknown-bucket design needs so the detector learns not to fire.
+    layout:
+      reader: mask_negative
+      parts:
+        - ann: "MaSTr1325/labels"
+          images: "MaSTr1325/images"
+      obstacle_values: [0]      # 0=obstacle/environment, 1=water, 2=sky, 4=ignore
+      max_obstacle_frac: 0.01
+    group: {mode: none}
+    stride: 1
+    cap: 1200
+
+# Fraction of the final training set that should be object-free negatives.
+# Mined from mastr_neg plus any annotation-free frames in the other sources.
+# Without these the unknown bucket fills with confident nonsense, because a
+# closed-set detector assigns SOME class to everything it fires on.
+negative_fraction: 0.12

@@ -1,0 +1,16 @@
+# Core
+numpy>=1.24
+opencv-python>=4.8
+PyYAML>=6.0
+tqdm>=4.66
+requests>=2.31
+
+# Optional per-source downloaders (install only what you need)
+gdown>=5.1            # Google Drive hosted sets (DUO, SUIM, SMD)
+kaggle>=1.6           # Kaggle mirrors (TrashCan)
+roboflow>=1.1         # Brackish
+fathomnet>=1.2        # FathomNet API
+
+# Later stages (not needed for download/unify)
+# ultralytics>=8.3
+# torch, torchvision

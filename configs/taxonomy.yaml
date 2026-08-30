@@ -1,0 +1,137 @@
+# Unified taxonomy for the amphibious survey robot.
+#
+# Design rule: collapse species -> function. The model is an AUTO-LABELER, not a
+# controller. Reliably saying "fish" is worth more than unreliably saying
+# "rockfish", because a wrong label writes corrupted data into the archive while
+# a missed label only falls to the unknown bucket for human review.
+version: 1
+
+names:
+  0: fish
+  1: benthic_invert
+  2: gelatinous
+  3: flora
+  4: debris
+  5: rope_net
+  6: person
+  7: equipment
+  8: structure
+  9: vessel
+  10: buoy_marker
+
+# Classes active per operating mode. Used at inference to mask logits based on
+# the depth sensor -- free elimination of most cross-domain false positives.
+# Not used during training (one model, full label space).
+modes:
+  submerged: [fish, benthic_invert, gelatinous, flora, debris, rope_net, person, equipment, structure]
+  surface:   [debris, person, vessel, buoy_marker, structure]
+
+# ---------------------------------------------------------------------------
+# Per-dataset source-label -> unified class.
+# ANY source label not listed here is DROPPED. Drops are counted and reported
+# by unify_datasets.py so you can audit what you threw away.
+# ---------------------------------------------------------------------------
+maps:
+
+  duo:
+    # All four DUO classes are harvest targets. For our mission they are one
+    # thing: "small benthic organism". This is why DUO is capped hard -- it
+    # carries ~74k boxes of a single unified class.
+    holothurian: benthic_invert
+    echinus: benthic_invert
+    scallop: benthic_invert
+    starfish: benthic_invert
+
+  brackish:
+    fish: fish
+    small_fish: fish
+    "small fish": fish
+    "big fish": fish
+    crab: benthic_invert
+    shrimp: benthic_invert
+    starfish: benthic_invert
+    jellyfish: gelatinous
+
+  trashcan:
+    rov: equipment
+    plant: flora
+    animal_fish: fish
+    animal_eel: fish
+    animal_starfish: benthic_invert
+    animal_shells: benthic_invert
+    animal_crab: benthic_invert
+    # animal_etc: DROPPED -- too ambiguous to label confidently
+    trash_rope: rope_net
+    trash_net: rope_net
+    trash_bag: debris
+    trash_bottle: debris
+    trash_can: debris
+    trash_container: debris
+    trash_cup: debris
+    trash_clothing: debris
+    trash_pipe: debris
+    trash_snack_wrapper: debris
+    trash_tarp: debris
+    trash_unknown_instance: debris
+    trash_branch: flora
+    trash_wreckage: structure
+
+  suim:
+    # SUIM ships RGB-coded masks; these are the 3-bit colour codes.
+    HD: person          # human divers
+    PF: flora           # plants / sea-grass
+    WR: structure       # wrecks / ruins
+    RO: equipment       # robots / instruments
+    RI: benthic_invert  # reefs / invertebrates
+    FV: fish            # fish and vertebrates
+    # SR (sand/sea-floor/rocks) and BW (background/water) DROPPED on purpose:
+    # they are full-frame regions and would produce one giant useless box per
+    # image. See reader config `max_area_frac`.
+
+  vddc:
+    diver: person
+    person: person
+
+  fathomnet:
+    # Populated from configs/datasets.yaml `fathomnet.concepts`, which maps
+    # concept -> unified class directly at download time. Kept here for the
+    # non-biological concepts that come back with literal names.
+    trash: debris
+    equipment: equipment
+    rope: rope_net
+
+  seaships:
+    ore carrier: vessel
+    bulk cargo carrier: vessel
+    general cargo ship: vessel
+    container ship: vessel
+    fishing boat: vessel
+    passenger ship: vessel
+
+  smd:
+    Ferry: vessel
+    Boat: vessel
+    Vessel/ship: vessel
+    "Speed boat": vessel
+    Kayak: vessel
+    "Sail boat": vessel
+    Buoy: buoy_marker
+    "Swimming person": person
+    # Flying bird/plane, Other: DROPPED
+
+  mods:
+    ship: vessel
+    boat: vessel
+    person: person
+    buoy: buoy_marker
+
+  flow:
+    bottle: debris
+    debris: debris
+    trash: debris
+
+  trash_icra19:
+    plastic: debris
+    trash_plastic: debris
+    rov: equipment
+    # bio: DROPPED -- unlabelled mixture of flora and fauna
