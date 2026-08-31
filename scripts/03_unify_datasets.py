@@ -16,9 +16,9 @@ Output (data/unified/):
     report.txt                         class counts, drops, per-source contribution
 
 Usage
-    python scripts/unify_datasets.py --dry-run
-    python scripts/unify_datasets.py
-    python scripts/unify_datasets.py --dataset trashcan --dataset suim
+    python scripts/03_unify_datasets.py --dry-run
+    python scripts/03_unify_datasets.py
+    python scripts/03_unify_datasets.py --dataset trashcan --dataset suim
 """
 
 from __future__ import annotations
@@ -115,7 +115,7 @@ def collect(name: str, cfg: dict, raw_root: Path, tax: Taxonomy) -> list[Mapped]
         images = resolve_path(ds_root, part["images"], want_dir=True)
         if ann is None or images is None:
             log.warning("[%s] could not resolve part ann=%r images=%r -- "
-                        "run: python scripts/download_datasets.py --inspect %s",
+                        "run: python scripts/01_download_datasets.py --inspect %s",
                         name, part["ann"], part["images"], name)
             continue
         for sample in reader(name, ann, images, cfg.get("group", {}), **extra):
@@ -323,6 +323,44 @@ def repeat_factors(items: list[Mapped], threshold: float = 0.10) -> dict[str, in
     return out
 
 
+def build_report(items: list[Mapped], contribution: dict[str, int], tax: Taxonomy,
+                 conf: dict, estimate: bool) -> str:
+    total = len(items)
+    split_counts = Counter(m.split for m in items)
+    class_counts: Counter = Counter()
+    neg = 0
+    for m in items:
+        if not m.labels:
+            neg += 1
+        for cid, *_ in m.labels:
+            class_counts[cid] += 1
+
+    lines: list[str] = []
+    if estimate:
+        lines.append("(pre-write estimate -- run without --dry-run for exact counts)")
+    lines.append(f"images total         {total}")
+    lines.append(f"  train/val/test     {split_counts['train']}/"
+                 f"{split_counts['val']}/{split_counts['test']}")
+    lines.append(f"  negatives          {neg}  ({neg / max(total, 1):.1%}, "
+                 f"target {conf.get('negative_fraction', 0):.0%})")
+    lines.append("")
+    lines.append("boxes per class")
+    for cid in sorted(tax.names):
+        share = class_counts[cid] / max(sum(class_counts.values()), 1)
+        lines.append(f"  {cid:>2} {tax.names[cid]:<16} {class_counts[cid]:>8}  {share:6.1%}")
+    lines.append("")
+    lines.append("images per source")
+    for name, n in sorted(contribution.items(), key=lambda kv: -kv[1]):
+        flag = "  <-- OVER 25% CAP" if n / max(total, 1) > 0.25 else ""
+        lines.append(f"  {name:<16} {n:>8}  {n / max(total, 1):6.1%}{flag}")
+    if tax.dropped:
+        lines.append("")
+        lines.append("dropped source labels (top 30)")
+        for key, n in tax.dropped.most_common(30):
+            lines.append(f"  {key:<44} {n:>8}")
+    return "\n".join(lines)
+
+
 # --------------------------------------------------------------------------- #
 
 def main() -> int:
@@ -382,52 +420,22 @@ def main() -> int:
         everything.extend(items)
 
     if not everything:
-        log.error("nothing collected -- run download_datasets.py --check")
+        log.error("nothing collected -- run scripts/01_download_datasets.py --check")
         return 1
 
     assign_splits(everything, conf["split"])
     for m in everything:
         m.out_name = out_name(m)
 
-    # ---- report ------------------------------------------------------------ #
-    total = len(everything)
-    split_counts = Counter(m.split for m in everything)
-    class_counts: Counter = Counter()
-    neg = 0
-    for m in everything:
-        if not m.labels:
-            neg += 1
-        for cid, *_ in m.labels:
-            class_counts[cid] += 1
-
-    lines: list[str] = []
-    lines.append(f"images total         {total}")
-    lines.append(f"  train/val/test     {split_counts['train']}/"
-                 f"{split_counts['val']}/{split_counts['test']}")
-    lines.append(f"  negatives          {neg}  ({neg / max(total, 1):.1%}, "
-                 f"target {conf.get('negative_fraction', 0):.0%})")
-    lines.append("")
-    lines.append("boxes per class")
-    for cid in sorted(tax.names):
-        share = class_counts[cid] / max(sum(class_counts.values()), 1)
-        lines.append(f"  {cid:>2} {tax.names[cid]:<16} {class_counts[cid]:>8}  {share:6.1%}")
-    lines.append("")
-    lines.append("images per source")
-    for name, n in sorted(contribution.items(), key=lambda kv: -kv[1]):
-        flag = "  <-- OVER 25% CAP" if n / max(total, 1) > 0.25 else ""
-        lines.append(f"  {name:<16} {n:>8}  {n / max(total, 1):6.1%}{flag}")
-    if tax.dropped:
-        lines.append("")
-        lines.append("dropped source labels (top 30)")
-        for key, n in tax.dropped.most_common(30):
-            lines.append(f"  {key:<44} {n:>8}")
-
-    report = "\n".join(lines)
-    print()
-    print(report)
-    print()
-
     if args.dry_run:
+        # Nothing gets written in a dry run, so this is a pre-write ESTIMATE:
+        # write_one() can still drop a small fraction at build time (unreadable
+        # source image, or a crop that evicts every box), which this count
+        # cannot see. Treat it as an upper bound, not a guarantee.
+        report = build_report(everything, contribution, tax, conf, estimate=True)
+        print()
+        print(report)
+        print()
         log.info("dry run -- nothing written")
         return 0
 
@@ -442,17 +450,31 @@ def main() -> int:
         futures = {pool.submit(write_one, m, out_root, geom): m for m in everything}
         for fut in tqdm(as_completed(futures), total=len(futures), desc="writing"):
             m = futures[fut]
-            ok, _ = fut.result()
+            ok, kept_ids = fut.result()
             if ok:
+                # written boxes can differ from m.labels: clamp_boxes() can
+                # legitimately evict individual boxes (not just all of them)
+                # when the crop clips one out but leaves others.
+                m.labels = [(cid, 0.0, 0.0, 0.0, 0.0) for cid in kept_ids]
                 written.append(m)
             else:
                 failed += 1
 
     log.info("wrote %d images (%d failed/skipped)", len(written), failed)
 
+    # ---- report (built from what was actually written, not what was planned) #
+    written_contribution: Counter = Counter(m.sample.dataset for m in written)
+    report = build_report(written, dict(written_contribution), tax, conf, estimate=False)
+    print()
+    print(report)
+    print()
+
     # ---- configs + manifest ------------------------------------------------ #
+    # No `path:` key -- Ultralytics defaults it to the yaml file's own parent
+    # directory (ultralytics/data/utils.py:check_det_dataset). Leaving it out
+    # is what makes this yaml work unmodified both here and after being
+    # uploaded as a Kaggle dataset, where the mount point isn't known yet.
     base = {
-        "path": str(out_root.resolve()),
         "val": "images/val",
         "test": "images/test",
         "names": tax.names,

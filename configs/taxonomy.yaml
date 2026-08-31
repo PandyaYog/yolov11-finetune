@@ -101,6 +101,22 @@ maps:
     rope: rope_net
 
   seaships:
+    # The paper's 6 classes are ore carrier/bulk cargo carrier/general cargo
+    # ship/container ship/fishing boat/passenger ship, but the mirror this
+    # repo downloads (see configs/datasets.yaml -> seaships) ships a
+    # different, coarser label set under the same dataset name. Only
+    # "Passenger Ship" happened to case-insensitively match the paper names
+    # below, so the other 5 classes -- ~28.7k of ~33.3k boxes -- were
+    # silently dropped. Verified against the actual XMLs
+    # (data/raw/seaships/annotations/*.xml); every one of these is some kind
+    # of ship, so all six collapse to "vessel" same as before.
+    "Bulk Carrier": vessel
+    "Cargo Ship": vessel
+    "Passenger Ship": vessel
+    "Other Ship": vessel
+    "Fishing Vessel": vessel
+    "Pleasure Craft": vessel
+    # Kept in case a future re-download reverts to the paper's original mirror.
     ore carrier: vessel
     bulk cargo carrier: vessel
     general cargo ship: vessel

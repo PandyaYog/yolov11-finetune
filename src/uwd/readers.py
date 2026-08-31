@@ -10,8 +10,9 @@ source datasets collapse into five readers rather than twelve adapters:
     mask_negative  MaSTr1325         (object-free frame mining)
 
 Boxes are stored NORMALISED (cx, cy, w, h in 0..1) with the SOURCE label
-string. Taxonomy mapping happens later, in unify_datasets.py, so that dropped
-labels can be counted and reported rather than silently vanishing here.
+string. Taxonomy mapping happens later, in scripts/03_unify_datasets.py, so
+that dropped labels can be counted and reported rather than silently
+vanishing here.
 """
 
 from __future__ import annotations
@@ -131,6 +132,11 @@ def read_coco(dataset: str, ann_path: Path, images_dir: Path,
         if not bbox or len(bbox) != 4:
             continue
         x, y, bw, bh = bbox                       # COCO is xywh, top-left origin
+        # FathomNet's export leaves width/height null for some records
+        # (56/10339 as of this writing) -- float(None) would crash the whole
+        # run rather than just dropping that one image's boxes.
+        if not img.get("width") or not img.get("height"):
+            continue
         W, H = float(img["width"]), float(img["height"])
         if W <= 0 or H <= 0:
             continue
@@ -176,8 +182,12 @@ def read_voc(dataset: str, ann_dir: Path, images_dir: Path,
         if W <= 0 or H <= 0:
             continue
 
-        fname = root.findtext("filename") or (xml_path.stem + ".jpg")
-        path = _find_image(images_dir, fname)
+        fname = root.findtext("filename")
+        path = None
+        if fname:
+            path = _find_image(images_dir, fname)
+        if path is None:
+            path = _find_image(images_dir, xml_path.stem + ".jpg")
         if path is None:
             continue
 
@@ -318,10 +328,16 @@ def read_mask_negative(dataset: str, mask_dir: Path, images_dir: Path,
     obstacle_values = obstacle_values or [0]
 
     for mask_path in sorted(mask_dir.rglob("*")):
-        if mask_path.suffix.lower() not in IMAGE_EXTS:
+        # MaSTr ships masks and source images side by side in the same flat
+        # directory (ann="." images="."). Only "<stem>m.png" is a label mask;
+        # without this filter every plain "<stem>.jpg" photo also gets
+        # visited as a candidate mask_path and its raw pixel values get read
+        # as if they were the {0,1,2,4} obstacle/water/sky/ignore label
+        # codes, yielding a bogus second (often wrongly-negative) Sample for
+        # the same image.
+        if mask_path.suffix.lower() != ".png" or not mask_path.stem.endswith("m"):
             continue
-        # MaSTr label files are named <stem>m.png against image <stem>.jpg
-        stem = mask_path.stem[:-1] if mask_path.stem.endswith("m") else mask_path.stem
+        stem = mask_path.stem[:-1]
         img_path = _find_image(images_dir, stem)
         if img_path is None:
             continue

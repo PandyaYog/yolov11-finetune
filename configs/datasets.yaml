@@ -37,10 +37,18 @@ split:
   # adjacent frames across train and val and inflates mAP by tens of points.
 
 datasets:
+  # `domain: submerged | surface` -- which WaterNet branch this source belongs
+  # to. WaterNet corrects underwater light attenuation/backscatter; running it
+  # on an already-correct in-air surface photo distorts a non-problem instead
+  # of fixing one. scripts/04_enhance_waternet.py only runs WaterNet on
+  # `submerged` images and copies `surface` images through untouched, so
+  # training sees exactly what the robot will produce at inference: WaterNet
+  # output when submerged, raw ISP output on the surface.
 
   # ---------------------------------------------------------------- benthic --
   duo:
     enabled: true
+    domain: submerged
     title: "DUO - Detecting Underwater Objects"
     cite: "arXiv:2106.05681"
     licence: "Research use; see repo"
@@ -58,10 +66,10 @@ datasets:
     layout:
       reader: coco
       parts:
-        - ann: "DUO/annotations/instances_train.json"
-          images: "DUO/images/train"
-        - ann: "DUO/annotations/instances_test.json"
-          images: "DUO/images/test"
+        - ann: "annotations/instances_train.json"
+          images: "images/train"
+        - ann: "annotations/instances_test.json"
+          images: "images/test"
     group: {mode: none}
     stride: 1
     cap: 2500
@@ -70,6 +78,7 @@ datasets:
   # ------------------------------------------------------------ water column --
   brackish:
     enabled: true
+    domain: submerged
     title: "Brackish Dataset (AAU, Limfjorden)"
     cite: "vap.aau.dk/the-brackish-dataset"
     licence: "CC BY 4.0"
@@ -81,29 +90,40 @@ datasets:
         note: |
           https://www.kaggle.com/datasets/aalborguniversity/brackish-dataset
           Save as data/raw/_archives/brackish-dataset.zip
-    # NOTE: the exact tree of the Kaggle mirror is unverified. Paths below are
-    # globs and are resolved against whatever was actually extracted, but run
-    #   python scripts/download_datasets.py --inspect brackish
-    # and correct them before trusting the counts. The AAU release ships AAU
-    # bbox, YOLO Darknet and COCO annotations; COCO is used here because the
-    # class-id ordering of the Darknet export is not documented.
+    # The AAU release ships AAU bbox, YOLO Darknet and COCO annotations; COCO
+    # is used here because the class-id ordering of the Darknet export is not
+    # documented. The Kaggle mirror ships raw .avi videos, not frames -- the
+    # COCO json file_names reference PNG frames at 960x540 that do not exist
+    # until scripts/02_extract_brackish_frames.py has been run (it decodes
+    # dataset/videos/*/*.avi into images_extracted/ with ffmpeg, matching the
+    # naming the dataset's own frameExtractor.py used: "<video-stem>-%04d.png").
+    # Annotation paths are literal, not globs: annotations_COCO/ also carries
+    # *_helper_dirs.json files whose names collide with a "*train*.json" glob.
     layout:
       reader: coco
       parts:
-        - ann: "**/*train*.json"
-          images: "**/train*"
-        - ann: "**/*valid*.json"
-          images: "**/valid*"
-        - ann: "**/*test*.json"
-          images: "**/test*"
+        - ann: "annotations/annotations_COCO/train_groundtruth.json"
+          images: "images_extracted"
+        - ann: "annotations/annotations_COCO/valid_groundtruth.json"
+          images: "images_extracted"
+        - ann: "annotations/annotations_COCO/test_groundtruth.json"
+          images: "images_extracted"
     # 14,518 frames from 89 videos at 30fps -> heavy temporal redundancy.
-    group: {mode: regex, pattern: "^(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})"}
+    # Frame stems are "<video-stem>-%04d" (e.g.
+    # "2019-02-21_06-36-31to2019-02-21_06-36-39_1-0082"); the video's own
+    # date/time uses "_" between date and time, not "-", so a pattern
+    # expecting an all-dash timestamp never matches -- it silently fell back
+    # to one-group-per-image (see "Splits" below), which defeated both the
+    # group-aware split and `stride` (nothing to subsample within a group of
+    # one). Match everything before the trailing frame number instead.
+    group: {mode: regex, pattern: "^(.+)-\\d{4}$"}
     stride: 6
     cap: 2500
     dedupe_phash: 6
 
   fathomnet:
     enabled: true
+    domain: submerged
     title: "FathomNet (MBARI)"
     cite: "Sci Rep 12, 15914 (2022)"
     licence: "CC BY 4.0 per-image; verify before redistribution"
@@ -162,6 +182,7 @@ datasets:
   # ------------------------------------------------------------------ debris --
   trashcan:
     enabled: true
+    domain: submerged
     title: "TrashCan 1.0 (UMN / JAMSTEC J-EDI)"
     cite: "arXiv:2007.08097"
     licence: "See UMN Digital Conservancy record"
@@ -188,21 +209,25 @@ datasets:
 
   trash_icra19:
     enabled: true
+    domain: submerged
     title: "Trash-ICRA19"
     licence: "See UMN Digital Conservancy record"
     sources:
+      - method: kaggle
+        slug: "atiqishrak/trash-dataset-icra19"
       - method: manual
         expect: "trash_icra19.zip"
         note: |
-          https://conservancy.umn.edu/handle/11299/214366
+          https://www.kaggle.com/datasets/atiqishrak/trash-dataset-icra19
+          Fallback: https://conservancy.umn.edu/handle/11299/214366
           Save as data/raw/_archives/trash_icra19.zip
     layout:
       reader: yolo
       parts:
-        - ann: "trash_icra19/train/labels"
-          images: "trash_icra19/train/images"
-        - ann: "trash_icra19/val/labels"
-          images: "trash_icra19/val/images"
+        - ann: "**/dataset/train"
+          images: "**/dataset/train"
+        - ann: "**/dataset/val"
+          images: "**/dataset/val"
       names: [plastic, bio, rov]
     group: {mode: regex, pattern: "^([a-zA-Z0-9]+)_"}
     stride: 3
@@ -210,14 +235,17 @@ datasets:
     dedupe_phash: 5
 
   flow:
-    enabled: true
+    enabled: false     # debris class well-covered by trashcan + trash_icra19
+    domain: surface
     title: "FloW-Img (floating waste, USV)"
     licence: "Research use"
     sources:
       - method: manual
         expect: "flow_img.zip"
         note: |
-          https://github.com/ORCA-Uboat/FloW-Dataset
+          Apply at: https://world.orca-tech.cn/
+          Navigate to "Customer Support -> Dataset -> FloW"
+          GitHub: https://github.com/ORCA-Uboat/FloW-Dataset
           Save as data/raw/_archives/flow_img.zip
     layout:
       reader: coco
@@ -231,23 +259,32 @@ datasets:
   # ------------------------------------------------------- divers / structure --
   suim:
     enabled: true
+    domain: submerged
     title: "SUIM - Segmentation of Underwater IMagery"
     licence: "MIT (verify)"
     sources:
+      - method: kaggle
+        slug: "ashish2001/semantic-segmentation-of-underwater-imagery-suim"
       - method: manual
         expect: "SUIM.zip"
         note: |
-          https://github.com/xahidbuffon/SUIM  (Google Drive link in README)
+          https://www.kaggle.com/datasets/ashish2001/semantic-segmentation-of-underwater-imagery-suim
+          Fallback: https://github.com/xahidbuffon/SUIM  (Google Drive link in README)
           Save as data/raw/_archives/SUIM.zip
           Best value-per-image of the whole collection: divers, wrecks, robots,
           reefs, fish and flora all in one 1525-image set.
+    # Only train_val is read here. TEST ships its masks pre-split into one
+    # binary folder per class (masks/FV, masks/HD, ...) rather than combined
+    # RGB-coded masks like train_val -- feeding that tree through this reader
+    # would re-yield every TEST image once per class subfolder it appears in
+    # (a binary presence mask misread as an RGB palette code, mostly matching
+    # nothing). train_val alone is enough: unify_datasets.py's own group split
+    # (mode: none, so per-image) still carves it into train/val/test.
     layout:
       reader: mask_rgb
       parts:
-        - ann: "SUIM/train_val/masks"
-          images: "SUIM/train_val/images"
-        - ann: "SUIM/TEST/masks"
-          images: "SUIM/TEST/images"
+        - ann: "**/train_val/masks"
+          images: "**/train_val/images"
       # 3-bit RGB colour codes -> source label
       palette:
         "0,0,255": HD
@@ -266,22 +303,38 @@ datasets:
 
   vddc:
     enabled: true
+    domain: submerged
     title: "VDD-C - Video Diver Dataset"
     licence: "See UMN Digital Conservancy record"
     sources:
       - method: manual
-        expect: "vddc.zip"
+        expect: "images.zip"
         note: |
-          https://conservancy.umn.edu/handle/11299/219383
-          Download the images + label archives (~8GB).
-          Save as data/raw/_archives/vddc.zip
+          https://conservancy.umn.edu/items/3b926c46-c328-40d8-841f-069ef8ab1ce2
+          Download ONLY these 2 files:
+            1. images.zip (7.63 GB) -- processed images
+            2. yolo_labels.zip (27.82 MB) -- YOLO style labels
+          Save both in data/raw/_archives/
           Role here is PRIVACY FILTER, not safety -- hence the hard cap.
+      - method: manual
+        expect: "yolo_labels.zip"
+        note: |
+          See above -- download yolo_labels.zip from the same UMN page.
     layout:
-      reader: voc
+      reader: yolo
       parts:
-        - ann: "vddc/annotations"
-          images: "vddc/images"
-    group: {mode: regex, pattern: "^([a-zA-Z]+\\d*)_"}
+        - ann: "labels_flat"
+          images: "images_flat"
+      names: [diver]
+    # images_flat names are "<session-dir>_<frame>.jpg" (see
+    # scripts/02_flatten_vddc_images.py), e.g. "barbados_scuba_011_A_2550.jpg".
+    # Capture everything before the trailing frame number, i.e. the session
+    # id -- NOT "^([a-zA-Z]+\d*)_", which stops at the first underscore and
+    # collapses all 22 barbados dives (plus all 12 pool dives) into one group
+    # each. With only 3 group keys left (barbados/pool/wayzata) the 80/10/10
+    # split can't approximate its ratios -- each site lands wholesale in one
+    # split, so val/test can end up with zero images from most sites.
+    group: {mode: regex, pattern: "^(.+)_\\d+$"}
     stride: 10
     cap: 2500
     dedupe_phash: 6
@@ -289,25 +342,35 @@ datasets:
   # ----------------------------------------------------------------- surface --
   seaships:
     enabled: true
+    domain: surface
     title: "SeaShips (7000)"
     licence: "Registration required; check terms before redistribution"
     sources:
+      - method: http
+        url: "http://www.lmars.whu.edu.cn/prof_web/shaozhenfeng/datasets/SeaShips(7000).zip"
+        expect: "seaships.zip"
+      - method: gdown
+        id: "1iwC_ITv2_x1vZFQ7Z8ZnL_kSXMB3DrOa"
+        expect: "seaships.zip"
       - method: manual
         expect: "seaships.zip"
         note: |
-          http://www.lmars.whu.edu.cn/prof_web/shaozhenfeng/datasets/
-          Registration may be required. Save as data/raw/_archives/seaships.zip
+          Direct: http://www.lmars.whu.edu.cn/prof_web/shaozhenfeng/datasets/SeaShips(7000).zip
+          Google Drive: https://drive.google.com/file/d/1iwC_ITv2_x1vZFQ7Z8ZnL_kSXMB3DrOa/view
+          HuggingFace: https://huggingface.co/datasets/datnguyentien204/Seaship7000
+          Save as data/raw/_archives/seaships.zip
     layout:
       reader: voc
       parts:
-        - ann: "SeaShips/Annotations"
-          images: "SeaShips/JPEGImages"
+        - ann: "**/annotations"
+          images: "**/images"
     group: {mode: none}
     stride: 1
     cap: 5000
 
   smd:
     enabled: false     # .mat annotations over video; enable once you extract frames
+    domain: surface
     title: "Singapore Maritime Dataset"
     licence: "Research use"
     sources:
@@ -329,21 +392,25 @@ datasets:
 
   mods:
     enabled: true
+    domain: surface
     title: "MODS / MODD2 (USV obstacle benchmark)"
     cite: "ViCoS Lab"
     licence: "Research use"
     sources:
+      - method: kaggle
+        slug: "k0vidsharma/water-land-edge-segmentation-mods"
       - method: manual
         expect: "mods.zip"
         note: |
-          https://vision.fe.uni-lj.si/public/mods/  (and github.com/bborja/modd)
-          This is the surface dataset with actual bounding boxes -- the thing
-          MaSTr1325 is not. Save as data/raw/_archives/mods.zip
+          https://www.kaggle.com/datasets/k0vidsharma/water-land-edge-segmentation-mods
+          Fallback: https://vision.fe.uni-lj.si/public/mods/  (and github.com/bborja/modd)
+          Save as data/raw/_archives/mods.zip
     layout:
-      reader: coco
+      reader: yolo
       parts:
-        - ann: "mods/annotations/mods.json"
-          images: "mods/images"
+        - ann: "all_labels"
+          images: "Segmentation/images"
+      names: [ship, boat, person, buoy]
     group: {mode: regex, pattern: "^(seq\\d+)"}
     stride: 5
     cap: 3000
@@ -351,25 +418,33 @@ datasets:
   # --------------------------------------------------------------- negatives --
   mastr_neg:
     enabled: true
+    domain: surface
     title: "MaSTr1325 (negative mining only)"
     cite: "Bovcon et al., IROS 2019"
     licence: "Research use"
     sources:
       - method: manual
-        expect: "mastr1325.zip"
+        expect: "MaSTr1325_images_512x384.zip"
         note: |
           https://www.vicos.si/resources/mastr1325/
-          Download images + per-pixel labels.
-          Save as data/raw/_archives/mastr1325.zip
+          (also referenced at https://github.com/bborja/modd)
+          Download these 2 files:
+            1. MaSTr1325 Images [512x384]
+            2. MaSTr1325 Ground Truth Annotations [512x384]
+          Save both in data/raw/_archives/
           NOT used for boxes -- its "environment" class is one blob covering
           shoreline, boats and buoys alike, which makes useless labels. Used
           only to mine guaranteed object-free water/sky frames, which the
           unknown-bucket design needs so the detector learns not to fire.
+      - method: manual
+        expect: "MaSTr1325_masks_512x384.zip"
+        note: |
+          See above -- download Ground Truth Annotations [512x384] from the same page.
     layout:
       reader: mask_negative
       parts:
-        - ann: "MaSTr1325/labels"
-          images: "MaSTr1325/images"
+        - ann: "."
+          images: "."
       obstacle_values: [0]      # 0=obstacle/environment, 1=water, 2=sky, 4=ignore
       max_obstacle_frac: 0.01
     group: {mode: none}

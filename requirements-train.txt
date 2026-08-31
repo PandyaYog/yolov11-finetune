@@ -1,0 +1,20 @@
+# Stage 5: fine-tuning (scripts/05_train.py). Deliberately separate from
+# requirements.txt / env/ -- installing this alongside tensorflow[and-cuda]
+# (stage 4) in the same venv puts nvidia-cudnn-cu12 (TF's) and
+# nvidia-cudnn-cu13 (torch's) side by side, which fails at the first real
+# conv forward pass with:
+#   RuntimeError: ... cudnn_status: CUDNN_STATUS_SUBLIBRARY_VERSION_MISMATCH
+# Use a second venv (see README "Setup"):
+#   python -m venv env_train && env_train/bin/pip install -r requirements-train.txt
+#
+# `pip install ultralytics` pulls a matching torch/torchvision automatically
+# -- don't pin them separately, and on Kaggle don't even install this file:
+# its notebooks ship a torch already wired to the T4 drivers, so just
+# `pip install ultralytics` on top of it there.
+ultralytics>=8.3
+
+# scripts/05_train.py imports uwd.util for logging helpers, which pulls
+# these -- ultralytics itself no longer depends on tqdm (its own progress
+# bars are Rich-based as of 8.4).
+tqdm>=4.66
+requests>=2.31

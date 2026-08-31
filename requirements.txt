@@ -11,6 +11,15 @@ kaggle>=1.6           # Kaggle mirrors (TrashCan)
 roboflow>=1.1         # Brackish
 fathomnet>=1.2        # FathomNet API
 
-# Later stages (not needed for download/unify)
-# ultralytics>=8.3
-# torch, torchvision
+# Stage 4: WaterNet enhancement (models/waternet_checkpoint/ is a TF1-era
+# checkpoint; [and-cuda] pulls matching cuDNN/cuBLAS wheels -- without it TF
+# silently runs on CPU, ~8x slower for this model). CPU-only machines can drop
+# the extra and just use `tensorflow`.
+tensorflow[and-cuda]>=2.16
+
+# Stage 5 (fine-tuning) is intentionally NOT listed here -- see
+# requirements-train.txt and the "Setup" section of the README for why it
+# needs a separate venv, not an entry in this one.
+#
+# Later stages (not needed for download/unify/enhance/train)
+# (export needs onnx/tensorrt -- added when scripts/06_export.py exists)

@@ -11,12 +11,12 @@ Ctrl+C finishes the item in flight, flushes, and exits cleanly. A second Ctrl+C
 exits immediately.
 
 Usage
-    python scripts/download_datasets.py --check
-    python scripts/download_datasets.py --all
-    python scripts/download_datasets.py --dataset trashcan --dataset suim
-    python scripts/download_datasets.py --inspect duo
-    python scripts/download_datasets.py --dataset fathomnet --list-concepts
-    python scripts/download_datasets.py --dataset duo --force
+    python scripts/01_download_datasets.py --check
+    python scripts/01_download_datasets.py --all
+    python scripts/01_download_datasets.py --dataset trashcan --dataset suim
+    python scripts/01_download_datasets.py --inspect duo
+    python scripts/01_download_datasets.py --dataset fathomnet --list-concepts
+    python scripts/01_download_datasets.py --dataset duo --force
 """
 
 from __future__ import annotations
@@ -90,7 +90,8 @@ def do_http(name: str, src: dict, archives: Path, target: Path) -> bool:
 def do_gdown(name: str, src: dict, archives: Path, target: Path) -> bool:
     dest = archives / src["expect"]
     if not dest.exists():
-        if run(["gdown", "--id", src["id"], "-O", str(dest)]) != 0 or not dest.exists():
+        gdrive_url = f"https://drive.google.com/uc?id={src['id']}"
+        if run([sys.executable, "-m", "gdown", gdrive_url, "-O", str(dest)]) != 0 or not dest.exists():
             log.warning("[%s] gdown failed (quota or private link?)", name)
             return False
     extract(dest, target)
@@ -104,7 +105,7 @@ def do_kaggle(name: str, src: dict, archives: Path, target: Path) -> bool:
     dest = archives / f"{stem}.zip"
 
     if not dest.exists():
-        code = run(["kaggle", "datasets", "download", "-d", slug, "-p", str(archives)])
+        code = run([sys.executable, "-m", "kaggle", "datasets", "download", "-d", slug, "-p", str(archives)])
         if code != 0:
             log.warning("[%s] kaggle CLI failed. Set up ~/.kaggle/kaggle.json "
                         "(Kaggle > Account > Create New API Token).", name)
@@ -346,7 +347,15 @@ def fetch(name: str, cfg: dict, root: Path, archives: Path, state: State,
     target.mkdir(parents=True, exist_ok=True)
     data_root = root.parent
 
-    for src in cfg.get("sources", []):
+    sources = cfg.get("sources", [])
+
+    # Separate sources into auto-downloadable (alternatives — first success wins)
+    # and manual (all must succeed, since a dataset may ship as multiple archives).
+    auto_sources = [s for s in sources if s["method"] != "manual"]
+    manual_sources = [s for s in sources if s["method"] == "manual"]
+
+    # --- try auto sources first (alternatives) ---
+    for src in auto_sources:
         if stop_requested():
             state.update(name, status=state.status(name) or PENDING)
             return False
@@ -364,8 +373,6 @@ def fetch(name: str, cfg: dict, root: Path, archives: Path, state: State,
                 ok = do_roboflow(name, src, archives, target)
             elif method == "fathomnet":
                 ok = do_fathomnet(name, cfg, target, state, list_concepts)
-            elif method == "manual":
-                ok = do_manual(name, src, archives, target, data_root)
             else:
                 log.error("[%s] unknown method %r", name, method)
                 ok = False
@@ -383,8 +390,31 @@ def fetch(name: str, cfg: dict, root: Path, archives: Path, state: State,
             log.info("[%s] complete (%d files)", name, n)
             return True
 
-    status = MANUAL if any(s["method"] == "manual" for s in cfg.get("sources", [])) \
-        else FAILED
+    # --- try manual sources (ALL must succeed) ---
+    if manual_sources:
+        all_ok = True
+        for src in manual_sources:
+            if stop_requested():
+                state.update(name, status=state.status(name) or PENDING)
+                return False
+            state.update(name, status=DOWNLOADING, source="manual")
+            try:
+                ok = do_manual(name, src, archives, target, data_root)
+            except KeyboardInterrupt:
+                raise
+            except Exception as exc:                      # noqa: BLE001
+                log.warning("[%s] manual source %s raised: %s",
+                            name, src.get("expect", "?"), exc)
+                ok = False
+            if not ok:
+                all_ok = False
+        if all_ok:
+            n = sum(1 for _ in target.rglob("*") if _.is_file())
+            state.update(name, status=COMPLETE, files=n, source="manual")
+            log.info("[%s] complete (%d files)", name, n)
+            return True
+
+    status = MANUAL if manual_sources else FAILED
     state.update(name, status=status)
     return False
 
