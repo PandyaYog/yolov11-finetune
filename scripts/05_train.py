@@ -123,6 +123,14 @@ def main() -> int:
                          "~60%% utilisation -- a good default on Kaggle's T4s)")
     ap.add_argument("--device", default="0",
                     help="'0' one GPU, '0,1' both Kaggle T4s (DDP), 'cpu'")
+    ap.add_argument("--optimizer", default="AdamW",
+                    help="Never leave this on Ultralytics' 'auto': for >10000 total "
+                         "iterations (any real run -- e.g. 100 epochs here is ~39000) "
+                         "it picks 'MuSGD', whose ultralytics/optim/muon.py has a real bug "
+                         "under DDP (.view() on a non-contiguous tensor -> RuntimeError, "
+                         "crashes both ranks on the first optimizer step). A short "
+                         "--fraction/--epochs smoke test stays under that threshold and "
+                         "won't catch it -- confirmed via a 100-epoch Kaggle 2xT4 run.")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--patience", type=int, default=50, help="early-stop patience, epochs")
     ap.add_argument("--flipud", type=float, default=0.1,
@@ -188,6 +196,7 @@ def main() -> int:
         imgsz=args.imgsz,
         batch=batch,
         device=device,
+        optimizer=args.optimizer,
         workers=args.workers,
         patience=args.patience,
         fraction=args.fraction,

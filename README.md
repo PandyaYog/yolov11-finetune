@@ -267,6 +267,15 @@ Real run:
 env_train/bin/python scripts/05_train.py --epochs 100
 ```
 
+`--optimizer` defaults to `AdamW`, deliberately never `auto`: Ultralytics
+picks its new `MuSGD` optimizer under `auto` once total iterations exceed
+10000 (any real multi-epoch run), and its DDP path has a real bug there
+(`.view()` on a non-contiguous tensor -> crashes both ranks on the first
+optimizer step). A short `--fraction`/`--epochs` smoke test stays under that
+threshold and won't catch it -- this was only found by an actual 100-epoch
+Kaggle 2xT4 run. Don't override `--optimizer` back to `auto` without
+retesting a full-length multi-GPU run first.
+
 ### Augmentation
 
 `05_train.py` overrides three of Ultralytics' defaults, deliberately, for
@@ -336,8 +345,13 @@ know in advance -- see below.
    !git clone <your-repo-url> repo
    %cd repo
    !pip install -q ultralytics albumentations
-   !python scripts/05_train.py --epochs 100 --device 0,1 --batch 64
+   !python scripts/05_train.py --epochs 100 --device 0,1 --batch 64 --cache ram
    ```
+   `--cache ram` matters here specifically: `/kaggle/input/` is a mounted,
+   read-only volume, noticeably slower than local disk (Ultralytics will warn
+   `Slow image access detected` if you leave it off) -- caching the corpus in
+   RAM once (fits easily, it's 2.5GB) instead of re-reading it over the mount
+   every epoch is a real difference across 100 epochs, not a micro-optimization.
 
 No `--data` flag needed: `05_train.py` first looks for
 `data/unified_enhanced/dataset_rfs.yaml` inside the cloned repo (won't exist
