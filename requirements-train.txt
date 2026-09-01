@@ -8,10 +8,16 @@
 #   python -m venv env_train && env_train/bin/pip install -r requirements-train.txt
 #
 # `pip install ultralytics` pulls a matching torch/torchvision automatically
-# -- don't pin them separately, and on Kaggle don't even install this file:
-# its notebooks ship a torch already wired to the T4 drivers, so just
-# `pip install ultralytics` on top of it there.
+# -- don't pin them separately, and on Kaggle don't even install this whole
+# file: its notebooks ship a torch already wired to the T4 drivers, so just
+# `pip install ultralytics albumentations` on top of it there.
 ultralytics>=8.3
+
+# scripts/05_train.py's --blur-p (default on) installs a custom Albumentations
+# blur/haze pass via the on_pretrain_routine_end callback -- see
+# install_blur_haze_augmentations() there for why. Without this installed,
+# --blur-p > 0 just errors out asking for it; pass --blur-p 0 to skip instead.
+albumentations>=1.4
 
 # scripts/05_train.py imports uwd.util for logging helpers, which pulls
 # these -- ultralytics itself no longer depends on tqdm (its own progress

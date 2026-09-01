@@ -2,3 +2,5 @@ data
 env
 __pycache__
 env_train
+runs
+*.pt

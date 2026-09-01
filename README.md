@@ -36,9 +36,11 @@ scripts/01_analyze_raw_datasets.py  stage 1: audit an extracted tree (dupes, col
 scripts/02_extract_brackish_frames.py  stage 2: decode brackish's raw .avi clips to frames
 scripts/02_flatten_vddc_images.py      stage 2: flatten VDD-C's per-session image folders
 scripts/02_flatten_vddc_labels.py      stage 2: flatten VDD-C's per-session label folders
+scripts/02_extract_smd_frames.py       stage 2: decode SMD videos + convert its .mat GT to YOLO labels
 scripts/03_unify_datasets.py        stage 3: merge everything into one YOLO corpus
 scripts/04_enhance_waternet.py      stage 4: WaterNet pass over submerged-domain images
 scripts/05_train.py                 stage 5: fine-tune YOLOv11n
+scripts/05b_validate_by_domain.py   stage 5: mAP on submerged-only vs surface-only val split
 src/uwd/                            readers (coco/voc/yolo/mask), geometry, waternet, helpers
 data/raw/                           one dir per source dataset
 data/raw/_archives/                 drop manually-downloaded zips here
@@ -144,8 +146,8 @@ Then correct that dataset's `layout.parts` in `configs/datasets.yaml`.
 
 ## 2. Prepare
 
-Two sources extract into a raw layout `03_unify_datasets.py` can't read
-directly and need a one-time repair pass first:
+Sources that extract into a raw layout `03_unify_datasets.py` can't read
+directly need a one-time repair pass first:
 
 ```bash
 python scripts/02_extract_brackish_frames.py   # decodes dataset/videos/*.avi -> images_extracted/ (needs ffmpeg)
@@ -155,6 +157,29 @@ python scripts/02_flatten_vddc_labels.py       # per-session folders -> labels_f
 
 All three are safe to re-run: each skips or no-ops on anything already moved
 or decoded. Every other source is read straight out of what stage 1 extracted.
+
+### SMD (buoy_marker's only real source)
+
+`buoy_marker` has zero examples without this: no other enabled source has a
+real buoy class. SMD is `manual` (Google Sites, no auto-fetch) and ships
+MATLAB `.mat` ground truth over raw video, so it needs both a download step
+you do yourself and a conversion pass:
+
+1. Get it from https://sites.google.com/site/dilipprasad/home/singapore-maritime-dataset,
+  unzip so `data/raw/smd/` contains `VIS_Onshore/`, `VIS_Onboard/` (each with
+  `Videos/` and `ObjectGT/` subfolders).
+2. ```bash
+   python scripts/02_extract_smd_frames.py --dry-run   # which videos have a Buoy, no decode
+   python scripts/02_extract_smd_frames.py              # decode + convert .mat -> YOLO .txt
+   ```
+   Only extracts videos containing a Buoy by default (SMD is ~180 videos
+   total; decoding all of them for one class wastes real time and disk) --
+   broaden with `--classes` if you want SMD for other thin classes too.
+3. `configs/datasets.yaml -> smd.enabled: true` (currently `false`).
+4. Re-run `scripts/03_unify_datasets.py` (full, no `--dataset` filter) and
+   `scripts/04_enhance_waternet.py` -- both are additive: existing sources'
+   images/splits are untouched (each dataset's split/cap/dedupe is computed
+   independently), only smd's new surface-domain images get added.
 
 ## 3. Unify
 
@@ -242,6 +267,48 @@ Real run:
 env_train/bin/python scripts/05_train.py --epochs 100
 ```
 
+### Augmentation
+
+`05_train.py` overrides three of Ultralytics' defaults, deliberately, for
+this corpus's split domains rather than leaving them at YOLO's generic
+defaults:
+
+- `--flipud 0.1`, `--degrees 10` (defaults 0 and 0): submerged classes have
+  no fixed "up" (fish/debris tumble in current), but surface classes
+  (vessel, buoy_marker) ARE gravity-constrained -- an upside-down ship is
+  not a training example that should exist. Low and modest, not aggressive,
+  so the submerged fraction benefits without corrupting the surface
+  fraction too often. Ultralytics applies one hyp config to the whole
+  training set; there's no per-image domain-aware augmentation switch.
+- `--blur-p 0.15` (default; 0 disables): targets *post-WaterNet* residual
+  blur/haze/turbidity, not synthetic underwater colour-cast -- WaterNet
+  already corrects colour cast before these images ever reach YOLO, so the
+  deployed model will never see a raw colour-cast image to begin with.
+  Ultralytics' own built-in blur augmentation exists but is nearly inert
+  (p=0.01, not reachable via any `train()` argument);
+  `install_blur_haze_augmentations()` in `05_train.py` installs a real one
+  via the one documented extension point (`hyp.augmentations`), needs
+  `albumentations` installed (`requirements-train.txt`).
+
+### Per-domain validation
+
+One blended mAP across all 11 classes can hide "great underwater, bad on
+the surface" (or the reverse) behind a number that looks fine on average --
+several classes are domain-exclusive (vessel/buoy_marker: surface only;
+fish/benthic_invert/gelatinous/flora/rope_net: submerged only). Check both
+separately after training:
+
+```bash
+env_train/bin/python scripts/05b_validate_by_domain.py --weights runs/train/yolo11n_enhanced/weights/best.pt
+```
+
+Splits the val set by source domain (`configs/datasets.yaml -> <dataset>.domain`)
+and runs `model.val()` on each independently, plus a per-class table. A
+class with zero ground-truth instances in a domain's val split prints
+`n/a (0 instances)` there rather than a number -- Ultralytics fills that
+slot with the split's overall mean AP as an internal placeholder, which
+would otherwise read as a real (and wrong) per-class score.
+
 ### Kaggle
 
 The repo (code) and the corpus (data) travel to Kaggle separately -- don't
@@ -268,7 +335,7 @@ know in advance -- see below.
    ```bash
    !git clone <your-repo-url> repo
    %cd repo
-   !pip install -q ultralytics
+   !pip install -q ultralytics albumentations
    !python scripts/05_train.py --epochs 100 --device 0,1 --batch 64
    ```
 

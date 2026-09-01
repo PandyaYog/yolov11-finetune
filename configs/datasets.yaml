@@ -369,7 +369,7 @@ datasets:
     cap: 5000
 
   smd:
-    enabled: false     # .mat annotations over video; enable once you extract frames
+    enabled: true
     domain: surface
     title: "Singapore Maritime Dataset"
     licence: "Research use"
@@ -378,8 +378,10 @@ datasets:
         expect: "smd.zip"
         note: |
           https://sites.google.com/site/dilipprasad/home/singapore-maritime-dataset
-          Annotations are MATLAB .mat over video files -- you must decode frames
-          first. Left disabled until you have an extracted frames+labels tree.
+          Unzip so data/raw/smd/ contains VIS_Onshore/, VIS_Onboard/ (each with
+          Videos/ and ObjectGT/). Then: python scripts/02_extract_smd_frames.py
+          -- decodes videos + converts the .mat ground truth to YOLO .txt.
+          Left disabled until that's been run (see README "2. Prepare" -> SMD).
     layout:
       reader: yolo
       parts:

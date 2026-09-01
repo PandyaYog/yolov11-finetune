@@ -77,9 +77,13 @@ def finalize_outputs(unified: Path, out_root: Path) -> None:
     enhanced corpus. Only called for a full (non---limit) invocation, so a
     smoke test never marks a partial corpus as training-ready."""
     for split in ("train", "val", "test"):
-        dst = out_root / "labels" / split
-        if not dst.exists():
-            shutil.copytree(unified / "labels" / split, dst)
+        # dirs_exist_ok, not "skip if dst exists": data/unified/ can grow
+        # between runs (e.g. a new source enabled + rebuilt), and a
+        # skip-if-exists copy would silently leave the new images in
+        # data/unified_enhanced/images/ without matching labels/ -- exactly
+        # what happened enabling smd, caught by the image/label count check
+        # in the README's "5. Train" smoke-test step.
+        shutil.copytree(unified / "labels" / split, out_root / "labels" / split, dirs_exist_ok=True)
 
     base_yaml = unified / "dataset.yaml"
     if not base_yaml.exists():

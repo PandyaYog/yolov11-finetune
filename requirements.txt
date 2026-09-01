@@ -4,6 +4,7 @@ opencv-python>=4.8
 PyYAML>=6.0
 tqdm>=4.66
 requests>=2.31
+scipy>=1.10           # scripts/02_extract_smd_frames.py -- SMD's .mat ground truth
 
 # Optional per-source downloaders (install only what you need)
 gdown>=5.1            # Google Drive hosted sets (DUO, SUIM, SMD)

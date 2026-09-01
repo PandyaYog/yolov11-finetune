@@ -47,6 +47,39 @@ sys.path.insert(0, str(ROOT / "src"))
 from uwd.util import log, setup_logging  # noqa: E402
 
 
+def install_blur_haze_augmentations(trainer, p: float) -> None:
+    """Point extra augmentation at post-WaterNet residual blur/haze, not
+    synthetic underwater colour-cast: WaterNet already corrects colour cast
+    before these images ever reach YOLO (see scripts/04_enhance_waternet.py),
+    so training the detector to tolerate a raw color cast it will never
+    actually see live wastes a nano model's limited capacity. What WaterNet
+    doesn't fully correct is scattering-softness/turbidity, which is what
+    this targets instead.
+
+    Ultralytics' own default Albumentations set exists but is nearly inert
+    (Blur/MedianBlur/CLAHE all at p=0.01 -- see ultralytics/data/augment.py),
+    and isn't reachable through any model.train() kwarg. The one documented
+    way in is `hyp.augmentations` (ultralytics/data/augment.py:v8_transforms
+    docstring), which has to be set before the trainer builds its dataset --
+    hence this runs on the on_pretrain_routine_end callback, which fires
+    before _setup_train() builds the dataloader.
+    """
+    import albumentations as A
+
+    trainer.args.augmentations = [
+        A.OneOf([
+            A.Blur(blur_limit=7, p=1.0),
+            A.MedianBlur(blur_limit=7, p=1.0),
+            A.GaussianBlur(blur_limit=(3, 7), p=1.0),
+        ], p=p),
+        A.RandomFog(fog_coef_range=(0.1, 0.3), alpha_coef=0.1, p=p * 0.5),
+        A.CLAHE(p=0.01),
+        A.RandomGamma(p=0.0),
+        A.ImageCompression(quality_range=(75, 100), p=0.0),
+    ]
+    log.info("albumentations: blur/haze augmentation installed (p=%.2f)", p)
+
+
 def resolve_data_path(given: Path) -> Path:
     """The repo (this script) and the dataset (data/unified_enhanced/) travel
     to Kaggle separately -- code via git clone, data via an attached Kaggle
@@ -92,6 +125,17 @@ def main() -> int:
                     help="'0' one GPU, '0,1' both Kaggle T4s (DDP), 'cpu'")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--patience", type=int, default=50, help="early-stop patience, epochs")
+    ap.add_argument("--flipud", type=float, default=0.1,
+                    help="vertical-flip probability. Low, not 0: benefits submerged classes "
+                         "(no fixed 'up' underwater) without corrupting the surface fraction "
+                         "(vessels/buoys ARE gravity-constrained) too often")
+    ap.add_argument("--degrees", type=float, default=10.0,
+                    help="rotation augmentation range, degrees. Modest, not aggressive -- "
+                         "same surface-domain reasoning as --flipud")
+    ap.add_argument("--blur-p", type=float, default=0.15,
+                    help="probability of the custom blur/haze augmentation (see "
+                         "install_blur_haze_augmentations); 0 to disable and fall back to "
+                         "Ultralytics' own near-inert (p=0.01) defaults")
     ap.add_argument("--fraction", type=float, default=1.0,
                     help="use only this fraction of the train set -- for a fast local "
                          "smoke test, not for the real run")
@@ -128,6 +172,16 @@ def main() -> int:
     batch = int(args.batch) if str(args.batch).lstrip("-").isdigit() else args.batch
     device = "cpu" if args.device == "cpu" else args.device
 
+    if args.blur_p > 0:
+        try:
+            import albumentations  # noqa: F401
+        except ImportError:
+            log.error("--blur-p=%.2f needs the albumentations package -- "
+                      "pip install -r requirements-train.txt", args.blur_p)
+            return 1
+        model.add_callback("on_pretrain_routine_end",
+                           lambda trainer: install_blur_haze_augmentations(trainer, args.blur_p))
+
     model.train(
         data=str(data_path),
         epochs=args.epochs,
@@ -138,6 +192,8 @@ def main() -> int:
         patience=args.patience,
         fraction=args.fraction,
         cache=args.cache,
+        flipud=args.flipud,
+        degrees=args.degrees,
         project=args.project,
         name=args.name,
         resume=args.resume,
