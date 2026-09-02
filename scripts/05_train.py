@@ -200,7 +200,6 @@ def main() -> int:
         imgsz=args.imgsz,
         batch=batch,
         device=device,
-        optimizer=args.optimizer,
         workers=args.workers,
         patience=args.patience,
         fraction=args.fraction,
