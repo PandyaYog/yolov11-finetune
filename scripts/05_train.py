@@ -115,7 +115,6 @@ def main() -> int:
                     help="starting weights: a yolo11n.pt to fine-tune from COCO, or a "
                          "runs/.../last.pt to continue a specific checkpoint")
     ap.add_argument("--epochs", type=int, default=100)
-    ap.add_argument("--optimizer", default="SGD")
     ap.add_argument("--lr0", type=float, default=0.001)
     ap.add_argument("--imgsz", type=int, default=640,
                     help="matches configs/datasets.yaml geometry -- letterboxed to square "
