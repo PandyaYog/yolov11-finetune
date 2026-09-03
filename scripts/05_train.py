@@ -80,6 +80,72 @@ def install_blur_haze_augmentations(trainer, p: float) -> None:
     log.info("albumentations: blur/haze augmentation installed (p=%.2f)", p)
 
 
+def warn_if_ram_cache_wont_fit(data_path: Path, device: str, imgsz: int) -> None:
+    """`--cache ram` holds DECODED images, and under DDP every rank keeps its
+    own full copy. That is the trap: the number Ultralytics prints while
+    caching ("Caching images (12.8GB RAM)") is PER RANK, so on two GPUs the
+    real footprint is double it, and nothing warns you.
+
+    A 640x480 image is 0.92 MB decoded against ~100 KB as a JPEG -- roughly
+    9x -- so a corpus that looks like 1.7 GB on disk needs ~15 GB per rank.
+    On Kaggle's 30 GB that fits on one GPU and dies on two, and the way it
+    dies is unhelpful: the kernel OOM-killer takes a dataloader worker, and
+    torchrun reports `DataLoader worker (pid N) is killed by signal: Killed`
+    / `exitcode: -9`, which reads like a torch or DDP bug rather than "you ran
+    out of host RAM". Confirmed on a 2xT4 run of this corpus.
+
+    Counting label files is enough for the estimate -- there is exactly one
+    per image -- and avoids parsing the train list, which may be an RFS file
+    whose repeated entries do NOT each cost a separate cache slot.
+    """
+    corpus = data_path.parent
+    n = sum(len(list((corpus / "labels" / s).glob("*.txt")))
+            for s in ("train", "val") if (corpus / "labels" / s).is_dir())
+    if not n:
+        return
+    ranks = max(1, len([d for d in str(device).split(",") if d.strip() != ""])) \
+        if device != "cpu" else 1
+
+    # Measure a real image rather than assuming imgsz x imgsz: Ultralytics
+    # caches the image resized so its LONG side is imgsz, keeping the aspect
+    # ratio, and letterboxing happens later per batch. This corpus is 4:3
+    # (640x480), so guessing a square would understate the footprint by a
+    # third -- which is the difference between "fits" and the OOM killer.
+    bytes_per = imgsz * imgsz * 3
+    sample = next((corpus / "images" / "train").glob("*.jpg"), None)
+    if sample is not None:
+        try:
+            import cv2
+            im = cv2.imread(str(sample))
+            if im is not None:
+                h, w = im.shape[:2]
+                scale = imgsz / max(h, w)
+                bytes_per = int(h * scale) * int(w * scale) * 3
+        except Exception:  # noqa: BLE001 -- fall back to the square estimate
+            pass
+    per_rank_gb = n * bytes_per / 1e9
+    total_gb = per_rank_gb * ranks
+
+    available_gb = None
+    try:
+        import os
+        available_gb = os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE") / 1e9
+    except (ValueError, OSError, AttributeError):
+        pass
+
+    log.warning("--cache ram: ~%.1f GB per rank x %d rank(s) = ~%.1f GB of host RAM"
+                "%s", per_rank_gb, ranks, total_gb,
+                f" (about {available_gb:.1f} GB free)" if available_gb else "")
+    if available_gb and total_gb > available_gb * 0.85:
+        log.error("that will not fit -- the OOM killer will take a dataloader worker "
+                  "mid-epoch and torchrun will report it as 'killed by signal: Killed "
+                  "/ exitcode: -9', which looks like a DDP bug but is not.\n"
+                  "    Drop --cache (the default, and what the 100-epoch 2xT4 run that "
+                  "produced runs/train/yolo11n_enhanced actually used), or copy the "
+                  "corpus to local disk and train from there.")
+        raise SystemExit(2)
+
+
 def resolve_data_path(given: Path) -> Path:
     """The repo (this script) and the dataset (data/unified_enhanced/) travel
     to Kaggle separately -- code via git clone, data via an attached Kaggle
@@ -112,8 +178,14 @@ def main() -> int:
     ap.add_argument("--data", default=str(ROOT / "data" / "unified_enhanced" / "dataset_rfs.yaml"),
                     help="dataset yaml (default: enhanced corpus, RFS-oversampled train list)")
     ap.add_argument("--model", default="yolo11n.pt",
-                    help="starting weights: a yolo11n.pt to fine-tune from COCO, or a "
-                         "runs/.../last.pt to continue a specific checkpoint")
+                    help="starting weights: a yolo11n.pt to fine-tune from COCO, a "
+                         "runs/.../last.pt to continue a specific checkpoint, or a model "
+                         "DEFINITION yaml (e.g. configs/yolo11-p2.yaml) -- in which case "
+                         "--pretrained supplies the weights to warm-start from")
+    ap.add_argument("--pretrained", default="yolo11n.pt",
+                    help="only used when --model is a .yaml: checkpoint to copy matching "
+                         "tensors from, so a custom architecture still inherits COCO "
+                         "pretraining instead of starting from random init. '' to disable")
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--lr0", type=float, default=0.001)
     ap.add_argument("--imgsz", type=int, default=640,
@@ -141,6 +213,40 @@ def main() -> int:
     ap.add_argument("--degrees", type=float, default=10.0,
                     help="rotation augmentation range, degrees. Modest, not aggressive -- "
                          "same surface-domain reasoning as --flipud")
+    # --- scale-preserving augmentation ------------------------------------- #
+    # These four default to Ultralytics' own values, i.e. they change nothing
+    # unless you pass them. That is deliberate: the v1 baseline
+    # (runs/train/yolo11n_enhanced) trained with these defaults, so leaving
+    # them alone keeps a v2 run comparable to it and isolates what the DATA
+    # repair bought. Tune them in a SECOND run, once you have that number.
+    #
+    # Why they matter here specifically -- measured over this corpus's 65k
+    # boxes, by shorter side in pixels at 640x480:
+    #
+    #                              median   <16px (2 P3 cells)   <8px (1 cell)
+    #   native                     44.9px          9.2%              0.3%
+    #   mosaic (0.5x linear)       22.4px         34.6%              9.2%
+    #   mosaic x scale-min (0.25x) 11.2px         63.8%             34.6%
+    #
+    # Mosaic tiles 4 images into one, halving every object; `scale` can shrink
+    # another 0.5x on top. YOLO11's finest head is P3 at stride 8, so an object
+    # under ~8px occupies a single grid cell and is effectively unlearnable.
+    # benthic_invert and reef -- 60% of all boxes -- have median short sides of
+    # 33px and 32px NATIVELY, so they are exactly the population this pushes
+    # under the floor. Mosaic is a good default for COCO-like data; this corpus
+    # is not COCO-like.
+    ap.add_argument("--mosaic", type=float, default=1.0,
+                    help="4-image mosaic probability. Ultralytics default 1.0 (every "
+                         "image). Try 0.5 on this corpus -- see the note above")
+    ap.add_argument("--scale", type=float, default=0.5,
+                    help="random resize gain, +/- this fraction. Default 0.5 means an "
+                         "object can be shrunk to half size on top of mosaic. Try 0.3")
+    ap.add_argument("--close-mosaic", type=int, default=10,
+                    help="disable mosaic for the final N epochs, so training ends on "
+                         "native-scale images. Try 20-30 with mosaic on")
+    ap.add_argument("--cos-lr", action="store_true",
+                    help="cosine LR schedule instead of linear decay; usually worth a "
+                         "few tenths of a point and costs nothing")
     ap.add_argument("--blur-p", type=float, default=0.15,
                     help="probability of the custom blur/haze augmentation (see "
                          "install_blur_haze_augmentations); 0 to disable and fall back to "
@@ -178,8 +284,20 @@ def main() -> int:
              data_path, args.model, args.epochs, args.imgsz, args.fraction)
 
     model = YOLO(args.model)
+    if str(args.model).endswith(".yaml") and args.pretrained:
+        # A .yaml is a model DEFINITION -- YOLO(yaml) starts from random init,
+        # throwing away the COCO pretraining that makes fine-tuning on 18k
+        # images work at all. .load() copies every tensor whose shape matches
+        # and leaves the rest random, which is exactly right for a variant like
+        # configs/yolo11-p2.yaml: the backbone and the P3/P4/P5 head transfer,
+        # only the new P2 layers start cold.
+        log.info("loading pretrained weights from %s into %s", args.pretrained, args.model)
+        model = model.load(args.pretrained)
     batch = int(args.batch) if str(args.batch).lstrip("-").isdigit() else args.batch
     device = "cpu" if args.device == "cpu" else args.device
+
+    if str(args.cache).lower() == "ram":
+        warn_if_ram_cache_wont_fit(data_path, device, args.imgsz)
 
     if args.blur_p > 0:
         try:
@@ -205,6 +323,10 @@ def main() -> int:
         cache=args.cache,
         flipud=args.flipud,
         degrees=args.degrees,
+        mosaic=args.mosaic,
+        scale=args.scale,
+        close_mosaic=args.close_mosaic,
+        cos_lr=args.cos_lr,
         project=args.project,
         name=args.name,
         resume=args.resume,

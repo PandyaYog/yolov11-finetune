@@ -48,6 +48,13 @@ def main() -> int:
     ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--device", default="0")
+    ap.add_argument("--augment", action="store_true",
+                    help="test-time augmentation: run each image at several scales and "
+                         "flips and merge the detections. Typically worth 1-2 mAP points "
+                         "with no retraining, at ~3x inference cost. Legitimate for this "
+                         "model's job -- auto-labelling is offline, so the cost never "
+                         "reaches the robot -- but report it as TTA, since it is not what "
+                         "a plain deployed forward pass would produce.")
     ap.add_argument("--no-domain-split", action="store_true",
                     help="skip the submerged/surface breakdown, just report one blended "
                          "test-set number (e.g. for a like-for-like ablation comparison)")
@@ -71,7 +78,7 @@ def main() -> int:
     if args.no_domain_split:
         r = model.val(data=str(data_yaml), split="test",
                       imgsz=args.imgsz, batch=args.batch, device=args.device,
-                      plots=False, verbose=False)
+                      augment=args.augment, plots=False, verbose=False)
         print()
         print(f"[test] mAP50={r.box.map50:.4f}  mAP50-95={r.box.map:.4f}  "
              f"precision={r.box.mp:.4f}  recall={r.box.mr:.4f}")
@@ -94,7 +101,7 @@ def main() -> int:
         log.info("--- evaluating on %s (%s) ---", domain, domain_yaml)
         results[domain] = model.val(data=str(domain_yaml), split="test",
                                     imgsz=args.imgsz, batch=args.batch, device=args.device,
-                                    plots=False, verbose=False)
+                                    augment=args.augment, plots=False, verbose=False)
 
     print_domain_report("test", test_lists, results)
     return 0

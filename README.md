@@ -373,13 +373,32 @@ know in advance -- see below.
    !git clone <your-repo-url> repo
    %cd repo
    !pip install -q ultralytics albumentations
-   !python scripts/05_train.py --epochs 100 --device 0,1 --batch 64 --cache ram
+   !python scripts/05_train.py --epochs 100 --device 0,1 --batch 64
    ```
-   `--cache ram` matters here specifically: `/kaggle/input/` is a mounted,
-   read-only volume, noticeably slower than local disk (Ultralytics will warn
-   `Slow image access detected` if you leave it off) -- caching the corpus in
-   RAM once (fits easily, it's 2.5GB) instead of re-reading it over the mount
-   every epoch is a real difference across 100 epochs, not a micro-optimization.
+   **Do not add `--cache ram` on 2 GPUs.** Ultralytics will warn `Slow image
+   access detected` because `/kaggle/input/` is a mounted read-only volume,
+   and caching looks like the obvious fix. It is a trap here: the RAM cache
+   holds *decoded* images (a 640x480 frame is 0.92 MB decoded vs ~100 KB as a
+   JPEG, ~9x), and **under DDP each rank keeps its own full copy** -- so the
+   "Caching images (12.8GB RAM)" figure Ultralytics prints is per rank and the
+   real cost is double it. For this corpus that is ~30 GB against Kaggle's
+   30 GB: it fits on one GPU and dies on two. The failure is unhelpful -- the
+   kernel OOM-killer takes a dataloader worker and torchrun reports
+   `DataLoader worker (pid N) is killed by signal: Killed` / `exitcode: -9`,
+   which looks like a DDP or torch bug and is not. `scripts/05_train.py` now
+   estimates this up front and refuses rather than letting you find out 5
+   minutes in.
+
+   Leaving cache off is what the 100-epoch 2xT4 run that produced
+   `runs/train/yolo11n_enhanced` actually used (`cache: false` in its
+   `args.yaml`) -- the mount was never the bottleneck at ~185 s/epoch. If you
+   do want faster reads, copy the corpus to local disk first, which costs a
+   minute and no RAM:
+   ```bash
+   !mkdir -p /kaggle/working/data && cp -r /kaggle/input/*/**/unified_enhanced/. /kaggle/working/data/
+   !python scripts/05_train.py --epochs 100 --device 0,1 --batch 64 \
+       --data /kaggle/working/data/dataset_rfs.yaml
+   ```
 
 No `--data` flag needed: `05_train.py` first looks for
 `data/unified_enhanced/dataset_rfs.yaml` inside the cloned repo (won't exist

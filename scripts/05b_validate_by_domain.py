@@ -46,6 +46,13 @@ def main() -> int:
     ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--device", default="0")
+    ap.add_argument("--augment", action="store_true",
+                    help="test-time augmentation: run each image at several scales and "
+                         "flips and merge the detections. Typically worth 1-2 mAP points "
+                         "with no retraining, at ~3x inference cost. Legitimate for this "
+                         "model's job -- auto-labelling is offline, so the cost never "
+                         "reaches the robot -- but report it as TTA, since it is not what "
+                         "a plain deployed forward pass would produce.")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
 
@@ -79,7 +86,7 @@ def main() -> int:
         log.info("--- validating on %s (%s) ---", domain, domain_yaml)
         results[domain] = model.val(data=str(domain_yaml), split="val",
                                     imgsz=args.imgsz, batch=args.batch, device=args.device,
-                                    plots=False, verbose=False)
+                                    augment=args.augment, plots=False, verbose=False)
 
     print_domain_report("val", val_lists, results)
     return 0

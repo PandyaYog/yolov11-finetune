@@ -356,6 +356,16 @@ def compile_fathomnet_coco(name: str, target: Path, cfg: dict,
 
         resolved: list[tuple[str, dict]] = []
         unresolved = 0
+        # FathomNet can carry the same localisation twice on one image -- two
+        # annotators boxing the same organism, or the same box filed under a
+        # concept and its synonym. Under the old exact-match rule at most one
+        # of the pair survived, so this never showed; keeping every resolvable
+        # concept surfaces them as literally identical rows in the label file.
+        # Harmless (Ultralytics drops them and says "N duplicate labels
+        # removed") but it makes every run's scan log noisy for no reason, and
+        # a duplicated box would double-count in any box statistics we compute
+        # ourselves. Dedupe on the resolved class plus the geometry.
+        seen: set[tuple] = set()
         for b in rec["boxes"]:
             if cmap:
                 cls = cmap.get(b["concept"])
@@ -365,6 +375,10 @@ def compile_fathomnet_coco(name: str, target: Path, cfg: dict,
             # concept list (e.g. after a class is retired); skip rather than
             # KeyError on cat_id.
             if cls and cls in cat_id:
+                key = (cls, b["x"], b["y"], b["w"], b["h"])
+                if key in seen:
+                    continue
+                seen.add(key)
                 resolved.append((cls, b))
             else:
                 unresolved += 1
