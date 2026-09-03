@@ -22,6 +22,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import re
@@ -287,24 +288,93 @@ def do_fathomnet(name: str, cfg: dict, target: Path, state: State,
                  status=DOWNLOADING if interrupted else EXTRACTING)
 
     # ---- phase 3: compile COCO from the progress log ---------------------- #
-    compile_fathomnet_coco(name, target, cfg)
+    compile_fathomnet_coco(name, target, cfg,
+                           ROOT / "configs" / "fathomnet_concept_map.csv")
     return not interrupted
 
 
-def compile_fathomnet_coco(name: str, target: Path, cfg: dict) -> None:
+def load_concept_map(path: Path) -> dict[str, str]:
+    """concept -> unified class, from the reviewed table written by
+    scripts/01b_resolve_fathomnet_concepts.py.
+
+    Rows with a blank class (CONFLICT / unresolved) are deliberately excluded:
+    an unreviewed ambiguity must not enter the corpus by default."""
+    if not path.exists():
+        return {}
+    out: dict[str, str] = {}
+    with path.open(encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            cls = (row.get("unified_class") or "").strip()
+            if cls:
+                out[row["concept"]] = cls
+    return out
+
+
+def compile_fathomnet_coco(name: str, target: Path, cfg: dict,
+                           concept_map_path: Path | None = None) -> None:
     """Rebuild annotations.json from the append-only progress log. Safe to run
-    at any point -- it always reflects exactly what is on disk."""
+    at any point -- it always reflects exactly what is on disk.
+
+    Boxes are labelled by resolving THEIR OWN concept through the reviewed
+    concept map, not by assuming they share the class of the concept the image
+    was queried for. The previous rule -- keep a box only if its concept
+    string equals the queried concept -- discarded 66% of everything FathomNet
+    returned (23,262 of 44,663 boxes as "out of taxonomy", plus 6,302 that were
+    already in our own concept list), because a species name never string-
+    matches its parent taxon. See scripts/01b_resolve_fathomnet_concepts.py.
+
+    Images whose annotation completeness falls below
+    `min_annotation_completeness` are dropped whole. This is the part that
+    actually removes training noise rather than just adding labels: a box we
+    cannot resolve is still a real object sitting in the frame, and an
+    unlabelled real object teaches the detector to suppress a correct
+    detection. An image mostly full of them is worth less than nothing.
+    """
     progress = JsonlProgress(target / "_progress.jsonl")
     classes = list(cfg.get("concepts", {}).keys())
     cat_id = {c: i + 1 for i, c in enumerate(classes)}
 
+    cmap = load_concept_map(concept_map_path) if concept_map_path else {}
+    if not cmap:
+        log.warning("[%s] no reviewed concept map at %s -- falling back to exact "
+                    "concept matching, which is known to discard ~66%% of available "
+                    "boxes. Run scripts/01b_resolve_fathomnet_concepts.py first.",
+                    name, concept_map_path)
+    else:
+        log.info("[%s] concept map: %d concepts resolve to a class", name, len(cmap))
+
+    min_complete = float(cfg.get("min_annotation_completeness", 0.0))
+
     coco = {"images": [], "annotations": [],
             "categories": [{"id": i, "name": c} for c, i in cat_id.items()]}
     ann_id = 1
+    kept_boxes = dropped_incomplete = unresolved_boxes = 0
 
     for rec in progress.read_all():
         if not (target / "images" / rec["file_name"]).exists():
             continue
+
+        resolved: list[tuple[str, dict]] = []
+        unresolved = 0
+        for b in rec["boxes"]:
+            if cmap:
+                cls = cmap.get(b["concept"])
+            else:
+                cls = rec["cls"] if b["concept"] == rec["concept"] else None
+            # A concept can resolve to a class that is not in this config's
+            # concept list (e.g. after a class is retired); skip rather than
+            # KeyError on cat_id.
+            if cls and cls in cat_id:
+                resolved.append((cls, b))
+            else:
+                unresolved += 1
+
+        total = len(resolved) + unresolved
+        if total and (len(resolved) / total) < min_complete:
+            dropped_incomplete += 1
+            continue
+        unresolved_boxes += unresolved
+
         img_id = len(coco["images"]) + 1
         coco["images"].append({
             "id": img_id,
@@ -314,22 +384,22 @@ def compile_fathomnet_coco(name: str, target: Path, cfg: dict) -> None:
             "dive": rec["dive"],
             "concept": rec["concept"],
         })
-        for b in rec["boxes"]:
-            # Only box the concept we queried for. A FathomNet image can carry
-            # localisations for organisms outside our taxonomy; boxing those as
-            # our class would be a straight mislabel.
-            if b["concept"] != rec["concept"]:
-                continue
+        for cls, b in resolved:
             coco["annotations"].append({
                 "id": ann_id, "image_id": img_id,
-                "category_id": cat_id[rec["cls"]],
+                "category_id": cat_id[cls],
                 "bbox": [b["x"], b["y"], b["w"], b["h"]], "iscrowd": 0,
             })
             ann_id += 1
+            kept_boxes += 1
 
     (target / "annotations.json").write_text(json.dumps(coco), encoding="utf-8")
     log.info("[%s] compiled %d images / %d boxes -> annotations.json",
-             name, len(coco["images"]), len(coco["annotations"]))
+             name, len(coco["images"]), kept_boxes)
+    if min_complete:
+        log.info("[%s] dropped %d images below %.0f%% annotation completeness; "
+                 "%d unresolved boxes remain in the kept images",
+                 name, dropped_incomplete, 100 * min_complete, unresolved_boxes)
 
 
 # --------------------------------------------------------------------------- #

@@ -72,7 +72,13 @@ datasets:
           images: "images/test"
     group: {mode: none}
     stride: 1
-    cap: 2500
+    # v2.1: 2500 -> 1000. DUO supplied 24,841 of 31,512 benthic_invert boxes
+    # (78.8%) and kept that class at 55% of the corpus even after the FathomNet
+    # recovery added ~9.4k boxes to it. This is the cheapest rebalancing lever
+    # available: DUO is four harvest species that all collapse to the SAME
+    # unified class, so cutting it sheds box count without losing a single
+    # morphology. Projected effect: benthic_invert 55% -> ~44% of boxes.
+    cap: 1000
     dedupe_phash: 6
 
   # ------------------------------------------------------------ water column --
@@ -161,7 +167,14 @@ datasets:
       flora: ["Macrocystis pyrifera", Algae, Phaeophyceae, Chlorophyta]
       equipment: [equipment]
       debris: [trash]
-      structure: [Porifera, Anthozoa, Scleractinia, Gorgonacea, Pennatulacea]
+      # Renamed from `structure` in taxonomy v2.1 -- these concepts are all
+      # living sessile organisms, which is what the class now means. The
+      # man-made wrecks that used to share the label have been retired.
+      # NOTE: Anthozoa contains Actiniaria, which is queried below as
+      # benthic_invert. That overlap is settled in
+      # configs/fathomnet_concept_map.csv, where an exact query match beats a
+      # descendant match -- see scripts/01b_resolve_fathomnet_concepts.py.
+      reef: [Porifera, Anthozoa, Scleractinia, Gorgonacea, Pennatulacea]
     # Per-concept ceiling. Lower than before BECAUSE the list is longer: the
     # same download budget now buys more body plans instead of more images of
     # the same few. Raising this would deepen coverage of concepts already
@@ -170,6 +183,20 @@ datasets:
     # Download budget. Fetching is round-robin across concepts, so stopping
     # early still leaves balanced coverage.
     target_total: 12000
+    # v2.1. FathomNet images are PARTIALLY annotated: an image returned for one
+    # concept carries localisations for whatever else the annotator happened to
+    # box, and anything we cannot resolve to a class stays in the frame with no
+    # label. For a detector that is not neutral -- an unlabelled real object is
+    # a false negative in the ground truth, and it trains the model to suppress
+    # correct detections. Measured: the model's unmatched-detection rate on the
+    # test split was 9.3% on exhaustively-annotated DUO imagery vs 27-52% on
+    # FathomNet.
+    #
+    # So: keep an image only if at least this fraction of its annotated objects
+    # got a label. 0.7 is a deliberate middle -- 1.0 would discard most of the
+    # source over a single unresolvable organism, 0.0 restores the old noise.
+    # Raise it if reef/benthic_invert precision still looks depressed.
+    min_annotation_completeness: 0.7
     layout:
       reader: coco
       parts:
@@ -201,8 +228,22 @@ datasets:
           images: "trashcan/instance_version/train"
         - ann: "trashcan/instance_version/instances_val_trashcan.json"
           images: "trashcan/instance_version/val"
-    # Sourced from ROV video; filenames carry the source dive id.
-    group: {mode: regex, pattern: "^([a-zA-Z0-9]+)_"}
+    # Sourced from ROV video; filenames carry the source dive id, as
+    # "vid_<dive>_frame<n>.jpg" (e.g. vid_000159_frame0000008.jpg).
+    #
+    # The previous pattern was "^([a-zA-Z0-9]+)_", which stops at the FIRST
+    # underscore and therefore captured the literal string "vid" for all 6,065
+    # files -- one single group for the whole dataset. A group is the unit the
+    # 80/10/10 split assigns, so TrashCan landed entirely in train: 2,670
+    # images, 0 val, 0 test. That starved the two classes it dominates
+    # (debris 62.6% of images, equipment 46.6%) of evaluation data -- 3,309
+    # train boxes of debris against 61 in val -- so their mAP was measured on
+    # almost nothing.
+    #
+    # Include the dive number in the capture: 310 groups instead of 1. This is
+    # the same failure already documented above for brackish and vddc; when
+    # adding a source, check the group count in report.txt before trusting it.
+    group: {mode: regex, pattern: "^([a-zA-Z]+_\\d+)_"}
     stride: 1
     cap: 6000
     dedupe_phash: 5
@@ -341,7 +382,7 @@ datasets:
 
   # ----------------------------------------------------------------- surface --
   seaships:
-    enabled: true
+    enabled: false     # surface domain removed per team decision (2026-09-03) -- see RESULTS.md
     domain: surface
     title: "SeaShips (7000)"
     licence: "Registration required; check terms before redistribution"
@@ -369,7 +410,7 @@ datasets:
     cap: 5000
 
   smd:
-    enabled: true
+    enabled: false     # surface domain removed per team decision (2026-09-03) -- see RESULTS.md
     domain: surface
     title: "Singapore Maritime Dataset"
     licence: "Research use"
@@ -393,7 +434,7 @@ datasets:
     cap: 3000
 
   mods:
-    enabled: true
+    enabled: false     # surface domain removed per team decision (2026-09-03) -- see RESULTS.md
     domain: surface
     title: "MODS / MODD2 (USV obstacle benchmark)"
     cite: "ViCoS Lab"
@@ -419,7 +460,7 @@ datasets:
 
   # --------------------------------------------------------------- negatives --
   mastr_neg:
-    enabled: true
+    enabled: false     # surface domain removed per team decision (2026-09-03) -- see RESULTS.md
     domain: surface
     title: "MaSTr1325 (negative mining only)"
     cite: "Bovcon et al., IROS 2019"

@@ -77,6 +77,34 @@ On Kaggle, skip `requirements-train.txt` entirely -- its notebooks ship a
 torch already built against their T4 drivers; just `pip install ultralytics`
 on top of it.
 
+**Never `pip install` torch, `ultralytics`, or anything that depends on them
+into `env`.** The two venvs only stay safe while `env` has no torch in it, and
+nothing warns you when that stops being true: the cuDNN wheels unpack into the
+same `site-packages/nvidia/<lib>/` directories, so the later install
+overwrites the earlier one *per file*. You are left with a mix -- e.g. cuDNN
+9.20's `libcudnn_graph.so.9` beside 9.25's `libcudnn_ext.so.9` -- and
+components of cuDNN 9 must all match. Nothing fails at install time; `pip
+check` stays clean; both packages still import. It surfaces only when
+TensorFlow next touches the GPU, as
+
+```
+Cudnn graph failed to build: UNKNOWN: <unknown cudnn status: 1002>
+  CUDNN_BACKEND_TENSOR_DESCRIPTOR cudnnFinalize failed
+```
+
+on the first convolution -- which reads like an OOM or a driver fault, and is
+neither. `TF_FORCE_GPU_ALLOW_GROWTH` and `TF_CUDNN_USE_FRONTEND=0` do not help.
+To confirm it, compare mtimes -- a healthy install has one date, a clobbered
+one has two:
+
+```bash
+ls -l --time-style=+%F env/lib/python3.12/site-packages/nvidia/cudnn/lib/
+```
+
+The fix is to rebuild `env` from `requirements.txt`, not to repair it in place.
+`scripts/04_enhance_waternet.py --cpu` is the escape hatch meanwhile (~1.2
+s/image vs ~0.1 on GPU).
+
 ## 1. Download
 
 Check what is present:

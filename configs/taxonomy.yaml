@@ -4,7 +4,21 @@
 # controller. Reliably saying "fish" is worth more than unreliably saying
 # "rockfish", because a wrong label writes corrupted data into the archive while
 # a missed label only falls to the unknown bucket for human review.
-version: 1
+# v2 (2026-09-03): 11 classes -> 8. Dropped vessel + buoy_marker (surface-only,
+# and the surface sources are disabled in configs/datasets.yaml) and rope_net
+# (119 boxes / 104 images corpus-wide -- not enough to train, and the
+# group-aware split left it with zero test instances, so it had no honest
+# held-out read either). CLASS IDS ARE RENUMBERED, so v1 checkpoints
+# (runs/train/yolo11n_enhanced*) are NOT label-compatible with a v2 corpus --
+# don't evaluate an old checkpoint against a newly-built dataset or every class
+# will silently shift by one or more indices.
+#
+# rope_net was a real requirement, not filler: a rope or net is an entanglement
+# hazard for a thrustered robot, which is a different failure mode from "loose
+# trash in frame" (debris). It is retired for lack of data, NOT because the
+# hazard stopped mattering -- restoring it needs dedicated collection, not a
+# hyperparameter change.
+version: 2
 
 names:
   0: fish
@@ -12,19 +26,31 @@ names:
   2: gelatinous
   3: flora
   4: debris
-  5: rope_net
-  6: person
-  7: equipment
-  8: structure
-  9: vessel
-  10: buoy_marker
+  5: person
+  6: equipment
+  # v2.1: was `structure`, which conflated two populations that share nothing.
+  # FathomNet supplied 86% of it as sponges/corals/sea pens -- living, sessile,
+  # median box 0.4% of frame -- while SUIM's WR supplied shipwrecks at a median
+  # of 51.7%. A 130x scale gap and no visual overlap under one label; no amount
+  # of data teaches a coherent concept across that. `reef` keeps the living
+  # sessile organisms (~8.8k boxes after the FathomNet recovery, a healthy
+  # class). The 349 man-made wreck boxes are retired for the same reason
+  # rope_net was: too thin to train, and keeping them would poison the class
+  # they were sharing. Worth collecting properly later -- a wreck is a
+  # legitimate survey find.
+  7: reef
 
 # Classes active per operating mode. Used at inference to mask logits based on
 # the depth sensor -- free elimination of most cross-domain false positives.
 # Not used during training (one model, full label space).
+#
+# `surface` is inherited from v1 and is currently NOT backed by training data:
+# every surface source is disabled, so a v2 model has seen no in-air imagery.
+# Kept so the amphibious wiring stays in place, but do not read it as a claim
+# that surface detection works in this round.
 modes:
-  submerged: [fish, benthic_invert, gelatinous, flora, debris, rope_net, person, equipment, structure]
-  surface:   [debris, person, vessel, buoy_marker, structure]
+  submerged: [fish, benthic_invert, gelatinous, flora, debris, person, equipment, reef]
+  surface:   [debris, person]
 
 # ---------------------------------------------------------------------------
 # Per-dataset source-label -> unified class.
@@ -61,8 +87,12 @@ maps:
     animal_shells: benthic_invert
     animal_crab: benthic_invert
     # animal_etc: DROPPED -- too ambiguous to label confidently
-    trash_rope: rope_net
-    trash_net: rope_net
+    # trash_rope, trash_net: DROPPED in v2 with the rope_net class. Left
+    # unmapped rather than pointed at a dead class name on purpose:
+    # Taxonomy.map_label() resolves a map target through id_of.get(), so a
+    # target that no longer exists in `names` returns None and the box is
+    # dropped WITHOUT being counted in the drop report. Unmapped labels take
+    # the counted path instead, so these stay visible in the unify summary.
     trash_bag: debris
     trash_bottle: debris
     trash_can: debris
@@ -73,17 +103,25 @@ maps:
     trash_snack_wrapper: debris
     trash_tarp: debris
     trash_unknown_instance: debris
-    trash_branch: flora
-    trash_wreckage: structure
+    # v2.1: trash_branch was `flora`. It is sunken dead wood -- 336 of the 843
+    # raw boxes that fed flora -- so it was training "living seagrass/kelp" on
+    # waterlogged branches. debris is the honest home for it.
+    trash_branch: debris
+    # trash_wreckage: DROPPED in v2.1 with the man-made half of `structure`.
+    # Unmapped rather than pointed at a dead class name, so the boxes show up
+    # in the unify drop report instead of vanishing through id_of.get() -> None.
 
   suim:
     # SUIM ships RGB-coded masks; these are the 3-bit colour codes.
     HD: person          # human divers
     PF: flora           # plants / sea-grass
-    WR: structure       # wrecks / ruins
     RO: equipment       # robots / instruments
     RI: benthic_invert  # reefs / invertebrates
     FV: fish            # fish and vertebrates
+    # WR (wrecks / ruins): DROPPED in v2.1 with the man-made half of
+    # `structure` -- 268 boxes at a median 51.7% of frame, against a `reef`
+    # median of 0.4%. Unmapped rather than pointed at a dead class name, so
+    # the drop is counted in the unify report.
     # SR (sand/sea-floor/rocks) and BW (background/water) DROPPED on purpose:
     # they are full-frame regions and would produce one giant useless box per
     # image. See reader config `max_area_frac`.
@@ -98,7 +136,18 @@ maps:
     # non-biological concepts that come back with literal names.
     trash: debris
     equipment: equipment
-    rope: rope_net
+    # rope: DROPPED in v2 with the rope_net class -- see the trashcan note above
+    # for why it is unmapped rather than pointed at the retired class name.
+
+  # ----------------------------------------------------------------- retired --
+  # v2 removed the surface domain (configs/datasets.yaml has seaships / smd /
+  # mods / mastr_neg disabled) and with it the vessel and buoy_marker classes.
+  # These map blocks are kept, not deleted: they are never consulted while
+  # their datasets are disabled, and they carry findings that cost real
+  # debugging to establish (see the seaships note). If you re-enable any of
+  # these sources, restore `vessel` / `buoy_marker` to `names` FIRST -- a map
+  # target missing from `names` drops its boxes silently, without appearing in
+  # the unify drop report.
 
   seaships:
     # The paper's 6 classes are ore carrier/bulk cargo carrier/general cargo

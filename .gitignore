@@ -2,5 +2,7 @@ data
 env
 __pycache__
 env_train
+env.broken
 runs
 *.pt
+*.zip

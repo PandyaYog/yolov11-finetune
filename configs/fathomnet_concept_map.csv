@@ -1,0 +1,1001 @@
+concept,boxes,unified_class,method,via
+Strongylocentrotus fragilis,3253,benthic_invert,ancestry,Echinoidea
+Ophiuroidea,2354,benthic_invert,exact,Ophiuroidea
+Porifera,1588,reef,exact,Porifera
+Actiniaria,1363,benthic_invert,exact,Actiniaria
+Sebastolobus,1041,fish,exact,Sebastolobus
+Scleractinia,1033,reef,exact,Scleractinia
+Pennatulacea,1011,reef,exact,Pennatulacea
+Munidopsis,977,benthic_invert,exact,Munidopsis
+Asteroidea,973,benthic_invert,exact,Asteroidea
+Crinoidea,916,benthic_invert,exact,Crinoidea
+Coralliidae,808,reef,ancestry,Anthozoa;Gorgonacea
+Gastropoda,761,benthic_invert,exact,Gastropoda
+Psolus squamatus,699,benthic_invert,ancestry,Holothuroidea
+equipment,696,equipment,exact,equipment
+Anoplopoma fimbria,684,fish,exact,Anoplopoma fimbria
+Nanomia bijuga,626,gelatinous,exact,Nanomia bijuga
+Holothuroidea,619,benthic_invert,exact,Holothuroidea
+Sebastes,557,fish,exact,Sebastes
+Scleralcyonacea,534,reef,ancestry,Anthozoa;Gorgonacea
+Brisingida,509,benthic_invert,exact,Brisingida
+Peniagone,508,benthic_invert,ancestry,Holothuroidea
+Pleuronectiformes,467,fish,exact,Pleuronectiformes
+Farrea,456,reef,ancestry,Porifera
+Beroe,449,gelatinous,exact,Beroe
+Macrouridae,438,fish,exact,Macrouridae
+Solmissus,437,gelatinous,exact,Solmissus
+Hexactinellida,437,reef,ancestry,Porifera
+Physonectae,432,gelatinous,exact,Physonectae
+Siphonophorae,415,gelatinous,exact,Siphonophorae
+Actinopterygii,408,fish,exact,Actinopterygii
+Isosicyonis,406,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Atolla,403,gelatinous,exact,Atolla
+Aegina citrea,400,gelatinous,exact,Aegina citrea
+Primnoidae,378,reef,ancestry,Anthozoa;Gorgonacea
+Rathbunaster californicus,374,benthic_invert,ancestry,Asteroidea
+Keratoisididae,360,reef,ancestry,Anthozoa;Gorgonacea
+Serpulidae,349,benthic_invert,ancestry,Polychaeta
+Chionoecetes tanneri,339,benthic_invert,ancestry,Decapoda
+Pannychia moseleyi,339,benthic_invert,ancestry,Holothuroidea
+Zoantharia,322,reef,ancestry,Anthozoa
+coral skeleton,269,,unresolved,
+Heteropolypus ritteri,265,reef,ancestry,Anthozoa;Gorgonacea
+Poralia,229,gelatinous,exact,Poralia
+Octocorallia,227,reef,ancestry,Anthozoa;Gorgonacea
+Polychaeta,224,benthic_invert,exact,Polychaeta
+Funiculina,223,reef,ancestry,Anthozoa;Gorgonacea
+Coryphaenoides,221,fish,ancestry,Actinopterygii;Macrouridae
+Anthozoa,208,reef,exact,Anthozoa
+Antipatharia,206,reef,ancestry,Anthozoa
+Liponema brevicorne,205,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Decapoda,203,benthic_invert,exact,Decapoda
+Porifera detritus,202,,unresolved,
+Scotoplanes globosa,200,benthic_invert,ancestry,Holothuroidea
+Galatheoidea,197,benthic_invert,ancestry,Decapoda
+Merluccius productus,194,fish,ancestry,Actinopterygii;Merlucciidae
+marine organism,188,,unresolved,
+manipulator,181,equipment,ancestry,equipment
+Doryteuthis (Amerigo) opalescens,169,,unresolved,
+Tunicata,158,,unresolved,
+Chrysogorgiidae,150,reef,ancestry,Anthozoa;Gorgonacea
+Neptunea-Buccinum Complex,144,benthic_invert,ancestry,Gastropoda
+Suction Sampler,144,equipment,ancestry,equipment
+Heterochone calyx,144,reef,ancestry,Porifera
+Salpida,134,gelatinous,exact,Salpida
+Vesicomyidae,133,benthic_invert,ancestry,Bivalvia
+Bivalvia,131,benthic_invert,exact,Bivalvia
+Chrysogorgia,128,reef,ancestry,Anthozoa;Gorgonacea
+Staurocalyptus,128,reef,ancestry,Porifera
+Pandalus platyceros,128,benthic_invert,ancestry,Decapoda
+Octopus rubescens,122,benthic_invert,ancestry,Octopoda
+Isopoda,119,benthic_invert,exact,Isopoda
+Comatulida,113,benthic_invert,ancestry,Crinoidea
+Scotoplanes,113,benthic_invert,ancestry,Holothuroidea
+Pyrosoma atlanticum,112,,unresolved,
+Pyrosoma detritus,111,,unresolved,
+Push Corer,110,equipment,ancestry,equipment
+Hormathiidae,104,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Caridea,98,benthic_invert,ancestry,Decapoda
+trash,93,debris,exact,trash
+Benthocodon pedunculata,92,gelatinous,ancestry,Hydrozoa
+Swiftia kofoidi,91,,unresolved,
+Asbestopluma,90,reef,ancestry,Porifera
+Ptychogastria polaris,86,gelatinous,ancestry,Hydrozoa
+Actinernus,84,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Bathochordaeus stygius,82,gelatinous,ancestry,Larvacea
+Peniagone sp. A,82,benthic_invert,ancestry,Holothuroidea
+Umbellula,81,reef,ancestry,Anthozoa;Gorgonacea
+Sclerothamnopsis,81,reef,ancestry,Porifera
+Scotoplanes sp. A,77,benthic_invert,ancestry,Holothuroidea
+Paelopatides confundens,77,benthic_invert,ancestry,Holothuroidea
+Ophidiidae,74,fish,exact,Ophidiidae
+Pennatula,73,reef,ancestry,Anthozoa;Gorgonacea
+Dosidicus gigas,72,,unresolved,
+Umbellula sp. 2,72,reef,ancestry,Anthozoa;Gorgonacea
+Bathyraja kincaidii,71,fish,ancestry,Elasmobranchii;Rajiformes
+Swiftia simplex,71,,unresolved,
+Microstomus pacificus,70,fish,ancestry,Actinopterygii;Pleuronectiformes
+LRJ complex,69,gelatinous,ancestry,Hydrozoa
+Ciona intestinalis,68,,unresolved,
+Corallimorpharia,68,reef,ancestry,Anthozoa
+Zoarcidae,67,fish,exact,Zoarcidae
+Melanocetus,66,fish,exact,Melanocetus
+Eusergestes similis,66,benthic_invert,ancestry,Decapoda
+Swiftia,66,reef,ancestry,Anthozoa;Gorgonacea
+Bathyraja trachura,65,fish,ancestry,Elasmobranchii;Rajiformes
+Paragorgia,65,reef,ancestry,Anthozoa;Gorgonacea
+Calyptogena magnifica,65,benthic_invert,ancestry,Bivalvia
+Dendrophylliidae,63,reef,ancestry,Anthozoa;Scleractinia
+Keratoisis,62,reef,ancestry,Anthozoa;Gorgonacea
+Corallimorphus pilatus,62,reef,ancestry,Anthozoa
+Plexauridae,62,reef,ancestry,Anthozoa;Gorgonacea
+Synallactidae,62,benthic_invert,ancestry,Holothuroidea
+Pandalus amplus,59,benthic_invert,ancestry,Decapoda
+Anthomastus cf. tahinodus,59,,unresolved,
+Euplectellidae,58,reef,ancestry,Porifera
+Vesicomya,58,benthic_invert,ancestry,Bivalvia
+Embassichthys bathybius,55,fish,ancestry,Actinopterygii;Pleuronectiformes
+Chorilia longipes,53,benthic_invert,ancestry,Decapoda
+Asteronyx,53,benthic_invert,ancestry,Ophiuroidea
+Funiculina-Balticina complex,51,reef,ancestry,Anthozoa;Gorgonacea
+detritus,50,,unresolved,
+Paragorgiidae,50,reef,ancestry,Anthozoa;Gorgonacea
+Terebellidae,50,benthic_invert,ancestry,Polychaeta
+Riftia pachyptila,50,benthic_invert,ancestry,Polychaeta
+Ctenophora,48,gelatinous,exact,Ctenophora
+Hippasteria,48,benthic_invert,ancestry,Asteroidea
+Delectopecten,47,benthic_invert,ancestry,Bivalvia
+Ceriantharia,46,reef,ancestry,Anthozoa
+Echinoidea,45,benthic_invert,exact,Echinoidea
+detrital aggregate,45,,unresolved,
+fecal cast,44,,unresolved,
+Hexacorallia,44,reef,ancestry,Anthozoa
+Paragorgia arborea,43,reef,ancestry,Anthozoa;Gorgonacea
+Paralomis,43,benthic_invert,ancestry,Decapoda
+Laqueus californicus,43,,unresolved,
+Munnopsidae,42,benthic_invert,ancestry,Isopoda
+Myctophidae,41,fish,exact,Myctophidae
+Sebastes diploproa,41,fish,ancestry,Actinopterygii;Sebastes
+Cystocrepis setigera,40,benthic_invert,ancestry,Echinoidea
+Parazoanthidae,39,,unresolved,
+Pandalopsis ampla,39,,unresolved,
+coiled fecal cast,38,,unresolved,
+Hydroidolina,38,gelatinous,ancestry,Hydrozoa
+Apostichopus leukothele,38,benthic_invert,ancestry,Holothuroidea
+Bathyraja abyssicola,38,fish,ancestry,Elasmobranchii;Rajiformes
+Provannidae,38,benthic_invert,ancestry,Gastropoda
+Aegina,37,gelatinous,ancestry,Hydrozoa
+Amphipoda,36,,unresolved,
+Walteria,36,,unresolved,
+Psathyrometra fragilis,36,benthic_invert,ancestry,Crinoidea
+Echinocrepis rostrata,35,benthic_invert,ancestry,Echinoidea
+Galatheidae,35,benthic_invert,ancestry,Decapoda
+Solasteridae,35,benthic_invert,ancestry,Asteroidea
+Bathochordaeus,35,gelatinous,ancestry,Larvacea
+Hydrozoa,34,gelatinous,exact,Hydrozoa
+Cystechinus loveni,34,benthic_invert,ancestry,Echinoidea
+Actiniidae sp. 1,34,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Eptatretus,32,,unresolved,
+Rajiformes,32,fish,exact,Rajiformes
+Paralomis multispina,32,benthic_invert,ancestry,Decapoda
+Chrysopathes speciosa,32,,unresolved,
+Mulloidichthys flavolineatus,32,,unresolved,
+Antimora microlepis,31,fish,ancestry,Actinopterygii
+Hymenaster,31,benthic_invert,ancestry,Asteroidea
+Sabellidae,30,benthic_invert,ancestry,Polychaeta
+Metridium farcimen,30,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Acanthascinae,30,reef,ancestry,Porifera
+Paradiopatra,29,benthic_invert,ancestry,Polychaeta
+Chiroteuthis calyx,29,,unresolved,
+Psamminidae,29,,unresolved,
+Goniasteridae,29,benthic_invert,ancestry,Asteroidea
+Cnemidocarpa,29,,unresolved,
+brittle star,29,,unresolved,
+Hyalonema (Oonema) bianchoratum,28,reef,ancestry,Porifera
+Abyssocucumis abyssorum,28,benthic_invert,ancestry,Holothuroidea
+Tromikosoma panamense,28,benthic_invert,ancestry,Echinoidea
+Pannychia,28,benthic_invert,ancestry,Holothuroidea
+Parastenella,27,reef,ancestry,Anthozoa;Gorgonacea
+Benthocodon,26,gelatinous,ancestry,Hydrozoa
+Muusoctopus robustus,26,benthic_invert,ancestry,Octopoda
+Florometra serratissima,26,benthic_invert,ancestry,Crinoidea
+Coryphaenoides acrolepis-filifer complex,26,fish,ancestry,Actinopterygii;Macrouridae
+Isididae,25,reef,ancestry,Anthozoa;Gorgonacea
+Graneledone boreopacifica,25,benthic_invert,ancestry,Octopoda
+Actinostolidae,25,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Mediaster aequalis,25,benthic_invert,ancestry,Asteroidea
+Krill molt,25,,unresolved,
+Praya dubia,24,gelatinous,ancestry,Hydrozoa;Praya;Siphonophorae
+Ascidiacea,24,,unresolved,
+Lithodidae,24,benthic_invert,ancestry,Decapoda
+Bolocera,24,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Lycenchelys,23,fish,ancestry,Actinopterygii;Zoarcidae
+Epizoanthus stellaris,23,reef,ancestry,Anthozoa
+Bathydorus laevis pseudospinosus,23,reef,ancestry,Porifera
+Enteroctopus dofleini,23,benthic_invert,ancestry,Octopoda
+Sebastolobus altivelis,23,fish,ancestry,Actinopterygii;Sebastolobus
+Neptunea,22,benthic_invert,ancestry,Gastropoda
+Scorpaenidae,22,fish,exact,Scorpaenidae
+Keratoisidinae,22,reef,ancestry,Anthozoa;Gorgonacea
+Pennatuloidea,22,reef,ancestry,Anthozoa;Gorgonacea
+Sebastidae,22,fish,ancestry,Actinopterygii
+Eumalacostraca,22,,unresolved,
+Acanthoptilum,22,reef,ancestry,Anthozoa;Gorgonacea
+Chaetognatha,21,,unresolved,
+Stylasterias forreri,21,benthic_invert,ancestry,Asteroidea
+Ostiactis pearseae,21,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Mediaster,21,benthic_invert,ancestry,Asteroidea
+eggcase,21,,unresolved,
+Pennatula phosphorea,21,reef,ancestry,Anthozoa;Gorgonacea
+Funiculina-Halipteris complex,21,,unresolved,
+Clavularia,21,reef,ancestry,Anthozoa;Gorgonacea
+Coryphaenoides acrolepis,21,fish,ancestry,Actinopterygii;Macrouridae
+Paguroidea,20,benthic_invert,ancestry,Decapoda
+Bathochordaeus sinker,20,,unresolved,
+Farrea occa,20,reef,ancestry,Porifera
+Buccinidae sp. 1,20,benthic_invert,ancestry,Gastropoda
+Aurelia aurita,20,gelatinous,ancestry,Scyphozoa
+can,19,debris,ancestry,trash
+Actinopteri,19,fish,ancestry,Actinopterygii
+Malacalcyonacea,19,reef,ancestry,Anthozoa;Gorgonacea
+Bathochordaeus mcnutti,19,gelatinous,ancestry,Larvacea
+Moloha faxoni,19,benthic_invert,ancestry,Decapoda
+Cnidaria,19,,unresolved,
+salp chain,19,,unresolved,
+Siboglinidae,19,benthic_invert,ancestry,Polychaeta
+Plesionika,19,benthic_invert,ancestry,Decapoda
+Careproctus,18,fish,exact,Careproctus
+Bathysiphon major,18,,unresolved,
+Anthomastinae,18,reef,ancestry,Anthozoa;Gorgonacea
+Mitrocoma,18,gelatinous,ancestry,Hydrozoa
+Peniagone gracilis,17,benthic_invert,ancestry,Holothuroidea
+Pagurus tanneri,17,benthic_invert,ancestry,Decapoda;Paguridae
+Pectinidae,17,benthic_invert,ancestry,Bivalvia
+Sclerothamnus,17,,unresolved,
+cup coral skeleton,17,,unresolved,
+Corolla,17,benthic_invert,ancestry,Gastropoda
+Mysida,17,,unresolved,
+Faxiella abietina,17,,unresolved,
+Psamminidae sp. 1,17,,unresolved,
+Teuthoidea,17,,unresolved,
+Hormathiidae sp. 1,17,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Phyllospadix-Zostera detritus,16,,unresolved,
+Kophobelemnon sp. 1,16,reef,ancestry,Anthozoa;Gorgonacea
+Protoptilum sp. 1,16,reef,ancestry,Anthozoa;Gorgonacea
+cable,15,equipment,ancestry,equipment
+Porites,15,,unresolved,
+Cirripedia,15,,unresolved,
+Acesta,15,benthic_invert,ancestry,Bivalvia
+Pterasteridae,15,benthic_invert,ancestry,Asteroidea
+collection device,15,,unresolved,
+Pteraster,15,benthic_invert,ancestry,Asteroidea
+Callistephanus kofoidi,15,reef,ancestry,Anthozoa;Gorgonacea
+lights,15,equipment,ancestry,equipment
+Corallimorphus,14,reef,ancestry,Anthozoa
+Polychaeta tube,14,,unresolved,
+Lycodes cortezianus,14,fish,ancestry,Actinopterygii;Zoarcidae
+Asbestopluma monticola,14,reef,ancestry,Porifera
+Fariometra parvula,14,benthic_invert,ancestry,Crinoidea
+Bathyraja spinosissima,14,fish,ancestry,Elasmobranchii;Rajiformes
+Medusae,14,,unresolved,
+Isidella tentaculum,14,reef,ancestry,Anthozoa;Gorgonacea
+Stichopathes spiessi,14,,unresolved,
+Coryphaenoides armatus-yaquinae complex,14,fish,ancestry,Actinopterygii;Macrouridae
+Prayidae,14,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Paragorgia sp. 1,14,reef,ancestry,Anthozoa;Gorgonacea
+Spirobranchus,14,,unresolved,
+Brachiopoda,14,,unresolved,
+Bolinopsis,13,gelatinous,exact,Bolinopsis
+Asteronyx longifissus,13,benthic_invert,ancestry,Ophiuroidea
+Bryozoa,13,,unresolved,
+Sebastomus complex,13,fish,ancestry,Actinopterygii;Sebastes
+Calycophorae,13,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Lillipathes,13,reef,ancestry,Anthozoa
+Pyrosoma,13,,unresolved,
+Lobata,13,gelatinous,ancestry,Ctenophora
+Scalpellidae,13,,unresolved,
+Heteropolypus,13,reef,ancestry,Anthozoa;Gorgonacea
+Gonatus,12,,unresolved,
+Peniagone vitrea,12,benthic_invert,ancestry,Holothuroidea
+Poralia rufescens,12,gelatinous,ancestry,Poralia;Scyphozoa
+Demospongiae,12,reef,ancestry,Porifera
+Acanthogorgia,12,reef,ancestry,Anthozoa;Gorgonacea
+Stomphia,12,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Paraphelliactis pabista,12,,unresolved,
+Acesta sphoni,12,benthic_invert,ancestry,Bivalvia
+Liponema,12,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Mycale sp. 1,12,reef,ancestry,Porifera
+Laetmogonidae,12,benthic_invert,ancestry,Holothuroidea
+Asbestopluma rickettsi,12,reef,ancestry,Porifera
+Glyptocephalus zachirus,11,fish,ancestry,Actinopterygii;Pleuronectiformes
+Brachyura,11,benthic_invert,ancestry,Decapoda
+shell,11,,unresolved,
+Bathyraja microtrachys,11,fish,ancestry,Elasmobranchii;Rajiformes
+Strongylocentrotus,11,benthic_invert,ancestry,Echinoidea
+Mycale,11,reef,ancestry,Porifera
+narella sp.,11,,unresolved,
+Caryophylliidae,11,reef,ancestry,Anthozoa;Scleractinia
+Antedonoidea,11,benthic_invert,ancestry,Crinoidea
+Mobula alfredi,11,,unresolved,
+Bathylagidae,10,fish,exact,Bathylagidae
+Octopoda,10,benthic_invert,exact,Octopoda
+Poeobius meseres,10,benthic_invert,ancestry,Polychaeta
+Beringraja rhina,10,fish,ancestry,Elasmobranchii;Rajiformes
+Tjalfiella,10,gelatinous,ancestry,Ctenophora
+Isidella,10,reef,ancestry,Anthozoa;Gorgonacea
+Thenea muricata,10,reef,ancestry,Porifera
+Pycnogonida,10,,unresolved,
+Iridogorgia,10,reef,ancestry,Anthozoa;Gorgonacea
+Mitrocoma cellularia,10,gelatinous,ancestry,Hydrozoa
+Oneirophanta mutabilis complex,10,benthic_invert,ancestry,Holothuroidea
+Appendicularia,10,gelatinous,ancestry,Larvacea
+Actinostoloidea,10,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Akoya platinum,10,benthic_invert,ancestry,Gastropoda
+Latrunculia (Latrunculia) austini,10,reef,ancestry,Porifera
+Crossaster borealis,10,benthic_invert,ancestry,Asteroidea
+Xenophyophoroidea,10,,unresolved,
+Gersemia juliepackardae,10,reef,ancestry,Anthozoa;Gorgonacea
+Lamellibrachia,10,benthic_invert,ancestry,Polychaeta
+Chrysaora fuscescens,10,gelatinous,ancestry,Scyphozoa
+Crustacea,9,,unresolved,
+Ptychogena lactea,9,gelatinous,ancestry,Hydrozoa
+Octopus californicus,9,benthic_invert,ancestry,Octopoda
+Aporocidaris milleri,9,benthic_invert,ancestry,Echinoidea
+Ophiacanthidae,9,benthic_invert,ancestry,Ophiuroidea
+Sebastes rufus,9,fish,ancestry,Actinopterygii;Sebastes
+Polynoidae,9,benthic_invert,ancestry,Polychaeta
+metal,9,debris,ancestry,trash
+Cerianthidae,9,reef,ancestry,Anthozoa
+Caulophacus,9,reef,ancestry,Porifera
+Crossaster,9,benthic_invert,ancestry,Asteroidea
+Pasiphaea,9,benthic_invert,ancestry,Decapoda
+Antedonidae,9,benthic_invert,ancestry,Crinoidea
+Hyalonema (Corynonema) populiferum,9,reef,ancestry,Porifera
+whale carcass,9,,unresolved,
+polypropylene line,9,debris,ancestry,trash
+Bathochordaeus charon,9,gelatinous,ancestry,Larvacea
+Paguridae,8,benthic_invert,exact,Paguridae
+Actinaria,8,,unresolved,
+spicule,8,,unresolved,
+Corallinales,8,,unresolved,
+Sebastolobus alascanus,8,fish,ancestry,Actinopterygii;Sebastolobus
+Colossendeis,8,,unresolved,
+Deepstaria reticulum,8,gelatinous,ancestry,Scyphozoa
+Lepidisis,8,reef,ancestry,Anthozoa;Gorgonacea
+sea fan,8,,unresolved,
+Munida,8,benthic_invert,ancestry,Decapoda
+Tomopteris,8,benthic_invert,ancestry,Polychaeta
+bony fish,8,,unresolved,
+Sabellida,8,benthic_invert,ancestry,Polychaeta
+Axoniderma kensmithi,8,reef,ancestry,Porifera
+talus,8,,unresolved,
+Stomphia didemon,8,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Tritonia tetraquetra,8,benthic_invert,ancestry,Gastropoda
+Didemnum,8,,unresolved,
+Ectenagena elongata,8,benthic_invert,ancestry,Bivalvia
+Bargmannia elongata,8,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Myxoderma platyacanthum,8,benthic_invert,ancestry,Asteroidea
+Halipteris californica,8,,unresolved,
+Lutjanus mahogoni,8,,unresolved,
+Vacatina,7,,unresolved,
+Peniagone papillata,7,benthic_invert,ancestry,Holothuroidea
+Bathybembix,7,benthic_invert,ancestry,Gastropoda
+Lycodes diapterus,7,fish,ancestry,Actinopterygii;Zoarcidae
+Taonius,7,,unresolved,
+Sicyonis,7,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Calyptraeidae,7,,unresolved,
+Neolithodes diomedeae,7,benthic_invert,ancestry,Decapoda
+Bathypathes,7,reef,ancestry,Anthozoa
+Tergivelum baldwinae,7,,unresolved,
+Dendrophylliidae skeleton,7,,unresolved,
+Elpidia sp. A,7,benthic_invert,ancestry,Holothuroidea
+object,7,,unresolved,
+Schizopathidae,7,reef,ancestry,Anthozoa
+Iosactis vagabunda,7,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Sebastes melanostomus,7,fish,ancestry,Actinopterygii;Sebastes
+feather star,7,,unresolved,
+Annelida,7,,unresolved,
+Sebastes chlorostictus,7,fish,ancestry,Actinopterygii;Sebastes
+Lophaster,7,benthic_invert,ancestry,Asteroidea
+Gorgonocephalus eucnemis,7,benthic_invert,ancestry,Ophiuroidea
+Retimohnia sp. A,7,benthic_invert,ancestry,Gastropoda
+Salpa fusiformis,7,gelatinous,ancestry,Salpida
+Nanomia,6,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Chlorophyta,6,flora,exact,Chlorophyta
+Rhodophycota,6,,unresolved,
+Histioteuthis heteropsis,6,,unresolved,
+Balanophyllia,6,reef,ancestry,Anthozoa;Scleractinia
+Rhodophyta,6,,unresolved,
+Plantae detritus,6,,unresolved,
+"Farrea ""turbocharger""",6,,unresolved,
+Mysidacea,6,,unresolved,
+Chorilia,6,benthic_invert,ancestry,Decapoda
+Liparidae,6,fish,ancestry,Actinopterygii
+Elpidiidae,6,benthic_invert,ancestry,Holothuroidea
+coral,6,,unresolved,
+Cidaroidea,6,benthic_invert,ancestry,Echinoidea
+sea star,6,,unresolved,
+Vampyroteuthis infernalis,6,,unresolved,
+actiniarian,6,,unresolved,
+plastic bag,6,debris,ancestry,trash
+Cydippida,6,gelatinous,ancestry,Ctenophora
+Culeolus barryi,6,,unresolved,
+Apolemia,6,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Parapaguridae,6,benthic_invert,ancestry,Decapoda
+Neoloricata,6,,unresolved,
+Antedonoidea sp. 1,6,benthic_invert,ancestry,Crinoidea
+Synaphobranchidae,6,fish,ancestry,Actinopterygii
+Staurocalyptus solidus,6,reef,ancestry,Porifera
+sinker,6,,unresolved,
+Bathysiphon,6,,unresolved,
+Mola mola,6,fish,ancestry,Actinopterygii
+Paelopatides sp.,6,,unresolved,
+Apostichopus,6,benthic_invert,ancestry,Holothuroidea
+Haemulidae,6,fish,ancestry,Actinopterygii
+Smithsonius dorothea,5,,unresolved,
+Chrysogorgia sp.,5,,unresolved,
+Arthropoda,5,,unresolved,
+Bathyphellia australis,5,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Benthodytes sp. 1,5,benthic_invert,ancestry,Holothuroidea
+Anthoathecata,5,gelatinous,ancestry,Hydrozoa
+Asthenactis fisheri,5,benthic_invert,ancestry,Asteroidea
+Advhena magnifica,5,,unresolved,
+shell fragment,5,,unresolved,
+Sipuncula,5,,unresolved,
+Zeuxokoma,5,,unresolved,
+ink,5,,unresolved,
+Mysidae,5,,unresolved,
+Trissopathes,5,reef,ancestry,Anthozoa
+Psychrolutes phrictus,5,fish,ancestry,Actinopterygii
+Lamoha longirostris,5,,unresolved,
+Bolocera kensmithi,5,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Vanhoeffenura pulchra,5,benthic_invert,ancestry,Isopoda
+Lampocteis cruentiventer,5,gelatinous,ancestry,Ctenophora
+Phronima sedentaria,5,,unresolved,
+Hydrolagus colliei,5,fish,ancestry,Chimaeriformes
+Majoidea,5,benthic_invert,ancestry,Decapoda
+Modeeria rotunda,5,gelatinous,ancestry,Hydrozoa
+Ceramaster,5,benthic_invert,ancestry,Asteroidea
+Acanthascinae sp. 2,5,reef,ancestry,Porifera
+Synallactes,5,benthic_invert,ancestry,Holothuroidea
+Callistephanus simplex,5,reef,ancestry,Anthozoa;Gorgonacea
+Careproctus melanurus,5,fish,ancestry,Actinopterygii;Careproctus
+Aulosphaera,5,,unresolved,
+Phelliactis,5,,unresolved,
+Calyptogena extenta,5,benthic_invert,ancestry,Bivalvia
+Atolla wyvillei,5,gelatinous,ancestry,Atolla;Scyphozoa
+Macrocystis pyrifera,4,flora,exact,Macrocystis pyrifera
+Fungiacyathus (Bathyactis) marenzelleri,4,reef,ancestry,Anthozoa;Scleractinia
+Hydractiniidae,4,gelatinous,ancestry,Hydrozoa
+Chirostylidae,4,benthic_invert,ancestry,Decapoda
+Holothuroidea sp. 8,4,benthic_invert,ancestry,Holothuroidea
+carapace,4,,unresolved,
+shrimp,4,,unresolved,
+Paralomis verrilli,4,benthic_invert,ancestry,Decapoda
+Lebbeus,4,benthic_invert,ancestry,Decapoda
+Glyphocrangon vicaria,4,benthic_invert,ancestry,Decapoda
+Colossendeidae,4,,unresolved,
+Synallactidae gen. et sp. indet.,4,benthic_invert,ancestry,Holothuroidea
+Rathbunaster,4,benthic_invert,ancestry,Asteroidea
+Bathycrinidae,4,benthic_invert,ancestry,Crinoidea
+Eulimidae,4,benthic_invert,ancestry,Gastropoda
+Walteria cf. leuckarti,4,,unresolved,
+Epimenia sp.,4,,unresolved,
+bacterial mat,4,,unresolved,
+Umbellula sp. 1,4,reef,ancestry,Anthozoa;Gorgonacea
+Periphylla periphylla,4,gelatinous,ancestry,Scyphozoa
+Majidae,4,benthic_invert,ancestry,Decapoda
+Ceriantharia sp. 2,4,reef,ancestry,Anthozoa
+Octopodidae,4,benthic_invert,ancestry,Octopoda
+Echinidae,4,,unresolved,
+Strongylocentrotus purpuratus,4,benthic_invert,ancestry,Echinoidea
+Lycenchelys crotalinus,4,fish,ancestry,Actinopterygii;Zoarcidae
+Regadrella,4,reef,ancestry,Porifera
+Anguilliformes,4,fish,ancestry,Actinopterygii
+Beroe abyssicola,4,gelatinous,ancestry,Beroe;Ctenophora
+Solmissus incisa,4,gelatinous,ancestry,Hydrozoa;Solmissus
+Bathysaurus mollis,4,fish,ancestry,Actinopterygii
+Dromalia alexandri,4,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Chonelasma,4,reef,ancestry,Porifera
+trap,4,equipment,ancestry,equipment
+Phronima,4,,unresolved,
+Distichoptilum gracile,4,reef,ancestry,Anthozoa;Gorgonacea
+Clavularia grandiflora,4,reef,ancestry,Anthozoa;Gorgonacea
+Beroe forskalii,4,gelatinous,ancestry,Beroe;Ctenophora
+Benthothuria,4,benthic_invert,ancestry,Holothuroidea
+Bythograea thermydron,4,benthic_invert,ancestry,Decapoda
+Sebastes aurora,4,fish,ancestry,Actinopterygii;Sebastes
+Holothuroidea sp. 3,4,benthic_invert,ancestry,Holothuroidea
+Lilyopsis fluoracantha,4,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Clavulariidae,4,reef,ancestry,Anthozoa;Gorgonacea
+anchor,4,equipment,ancestry,equipment
+Calyptrophora,4,reef,ancestry,Anthozoa;Gorgonacea
+Cladorhizidae,4,reef,ancestry,Porifera
+Bathyalcyon robustum,4,reef,ancestry,Anthozoa;Gorgonacea
+plastic,4,debris,ancestry,trash
+Poeobius,4,benthic_invert,ancestry,Polychaeta
+Thrissacanthias penicillatus,4,benthic_invert,ancestry,Asteroidea
+Hippasteria californica,4,benthic_invert,ancestry,Asteroidea
+Bathyraja cf. microtrachys,4,fish,ancestry,Elasmobranchii;Rajiformes
+Thecosomata,4,benthic_invert,ancestry,Gastropoda
+Chrysopathes,4,,unresolved,
+Chauliodus,3,fish,exact,Chauliodus
+Echiura,3,benthic_invert,ancestry,Polychaeta
+Hyalonema,3,reef,ancestry,Porifera
+Hormiphora californensis,3,gelatinous,ancestry,Ctenophora
+Anomura,3,benthic_invert,ancestry,Decapoda
+Homarus gammarus,3,,unresolved,
+Pleuronectidae,3,fish,ancestry,Actinopterygii;Pleuronectiformes
+Trachymedusae,3,gelatinous,ancestry,Hydrozoa
+Homolidae,3,benthic_invert,ancestry,Decapoda
+fecal material,3,,unresolved,
+Vitreosalpa gemini,3,gelatinous,ancestry,Salpida
+Euphausiacea,3,,unresolved,
+Docosaccus maculatus,3,reef,ancestry,Porifera
+Malacostraca,3,,unresolved,
+Asteronyx loveni,3,benthic_invert,ancestry,Ophiuroidea
+Cerataspis monstrosus,3,benthic_invert,ancestry,Decapoda
+Onykia robusta,3,,unresolved,
+Heterorete,3,,unresolved,
+Actinoscyphia,3,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Peniagone sp. 1,3,benthic_invert,ancestry,Holothuroidea
+Parmaturus xaniurus,3,fish,ancestry,Elasmobranchii
+Chelonia mydas,3,,unresolved,
+Colobonema sericeum,3,gelatinous,ancestry,Hydrozoa
+Farreidae,3,reef,ancestry,Porifera
+Propeamussium meridionale,3,benthic_invert,ancestry,Bivalvia
+Phacellophora camtschatica,3,gelatinous,ancestry,Scyphozoa
+Pseudostichopus mollis,3,benthic_invert,ancestry,Holothuroidea
+Ischnomesidae,3,benthic_invert,ancestry,Isopoda
+Victorgorgia alba,3,,unresolved,
+Euryalidae,3,,unresolved,
+Galiteuthis phyllura,3,,unresolved,
+laser,3,,unresolved,
+Craseoa lathetica,3,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Thenea,3,reef,ancestry,Porifera
+Culeolus,3,,unresolved,
+Solaster,3,benthic_invert,ancestry,Asteroidea
+Solmaris,3,gelatinous,ancestry,Hydrozoa
+Sebastes babcocki,3,fish,ancestry,Actinopterygii;Sebastes
+Decapodiformes,3,,unresolved,
+Albatrossia pectoralis,3,fish,ancestry,Actinopterygii;Macrouridae
+Parapagurus,3,benthic_invert,ancestry,Decapoda
+Coryphaenoides leptolepis,3,fish,ancestry,Actinopterygii;Macrouridae
+Pannychia sp. 1,3,benthic_invert,ancestry,Holothuroidea
+Munida quadrispina,3,benthic_invert,ancestry,Decapoda
+Gymnopraia lapislazula,3,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Actiniidae,3,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Octopoteuthis deletron,3,,unresolved,
+Squalus suckleyi,3,fish,ancestry,Elasmobranchii
+Copepoda,3,,unresolved,
+Heterocarpus sp. 1,3,benthic_invert,ancestry,Decapoda
+Semperella,3,,unresolved,
+Bathydorus laniger,3,reef,ancestry,Porifera
+Eualus sp.,3,,unresolved,
+Corallimorphidae,3,reef,ancestry,Anthozoa
+Pleurobranchaea californica,3,benthic_invert,ancestry,Gastropoda
+Bathypterois pectinatus,3,fish,ancestry,Actinopterygii
+cardboard,3,debris,ancestry,trash
+Psolidae,3,benthic_invert,ancestry,Holothuroidea
+Dibranchus hystrix,3,fish,ancestry,Actinopterygii
+Plesionika sp. A,3,benthic_invert,ancestry,Decapoda
+Chondrocladia,3,reef,ancestry,Porifera
+Hexactinellida sp. 6,3,reef,ancestry,Porifera
+Muusoctopus,3,benthic_invert,ancestry,Octopoda
+site marker,3,equipment,ancestry,equipment
+Munidopsis kensmithi,3,benthic_invert,ancestry,Decapoda;Munidopsis
+Munidopsis depressa,3,benthic_invert,ancestry,Decapoda;Munidopsis
+Benthopecten,3,benthic_invert,ancestry,Asteroidea
+Ophiodon elongatus,3,fish,ancestry,Actinopterygii
+ship container,3,debris,ancestry,trash
+Hastigerinella digitata,3,,unresolved,
+Terebratulina complex,3,,unresolved,
+Atolla vanhoeffeni,3,gelatinous,ancestry,Atolla;Scyphozoa
+Chirostyloidea,3,benthic_invert,ancestry,Decapoda
+Diadematidae,3,,unresolved,
+Calliostoma,3,benthic_invert,ancestry,Gastropoda
+enclosure,3,equipment,ancestry,equipment
+Free Ocean CO2 Experiment,3,equipment,ancestry,equipment
+Saxipendium implicatum,3,,unresolved,
+Chrysogorgia monticola,3,reef,ancestry,Anthozoa;Gorgonacea
+Nanomia bijuga nectosome,3,,unresolved,
+DeepPIV 1.0,2,equipment,ancestry,equipment
+Scyphozoa,2,gelatinous,exact,Scyphozoa
+Pyuridae,2,,unresolved,
+enteropneust spiral fecal cast,2,,unresolved,
+Serranidae,2,fish,ancestry,Actinopterygii
+Doliolina (Doliolinetta),2,,unresolved,
+Sergestidae,2,benthic_invert,ancestry,Decapoda
+Planctoteuthis,2,,unresolved,
+Rochinia,2,,unresolved,
+Dendrophyllia,2,reef,ancestry,Anthozoa;Scleractinia
+Salpa,2,gelatinous,ancestry,Salpida
+Alcyoniidae,2,reef,ancestry,Anthozoa;Gorgonacea
+Cidaridae,2,benthic_invert,ancestry,Echinoidea
+Gorgonocephalus,2,benthic_invert,ancestry,Ophiuroidea
+Opiuroidea,2,,unresolved,
+Walteria flemmingi,2,,unresolved,
+Taonius borealis,2,,unresolved,
+Buccinidae,2,benthic_invert,ancestry,Gastropoda
+Clausophyidae,2,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Pachycara bulbiceps,2,fish,ancestry,Actinopterygii;Zoarcidae
+Carcharhiniformes,2,fish,ancestry,Elasmobranchii
+Symphurus oligomerus,2,fish,ancestry,Actinopterygii;Pleuronectiformes
+Xeneretmus latifrons,2,fish,ancestry,Actinopterygii
+Tritonia,2,benthic_invert,ancestry,Gastropoda
+Verum proximum,2,,unresolved,
+Asthenactis,2,benthic_invert,ancestry,Asteroidea
+Dofleinia,2,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Aulostomus chinensis,2,,unresolved,
+Salpidae,2,gelatinous,ancestry,Salpida
+Bathypterois,2,fish,ancestry,Actinopterygii
+Peniagone vitrea- sp. 1 complex,2,benthic_invert,ancestry,Holothuroidea
+Octacnemidae sp. 1,2,,unresolved,
+DeepPIV 2.0,2,equipment,ancestry,equipment
+Brisingidae,2,benthic_invert,ancestry,Asteroidea;Brisingida
+Chrysogorgia geniculata,2,,unresolved,
+Narella macrocalyx,2,,unresolved,
+Ophiuridae,2,benthic_invert,ancestry,Ophiuroidea
+Munididae,2,benthic_invert,ancestry,Decapoda
+Midwater Respirometry System,2,equipment,ancestry,equipment
+Buccinum,2,benthic_invert,ancestry,Gastropoda
+DeepPIV 3.0,2,equipment,ancestry,equipment
+Anthomastus sp.,2,,unresolved,
+Myxasteridae,2,benthic_invert,ancestry,Asteroidea
+Caryophylliidae skeleton,2,,unresolved,
+Madrepora oculata,2,,unresolved,
+Callistephanus,2,reef,ancestry,Anthozoa;Gorgonacea
+Balanophyllia (Balanophyllia) elegans ,2,,unresolved,
+octopus,2,,unresolved,
+Tjalfiellidae,2,gelatinous,ancestry,Ctenophora
+Stylocordyla sp.,2,,unresolved,
+Anthoptilum grandiflorum,2,reef,ancestry,Anthozoa;Gorgonacea
+Eukrohnia fowleri,2,,unresolved,
+pillow lava,2,,unresolved,
+Protoptilum,2,reef,ancestry,Anthozoa;Gorgonacea
+sponge,2,,unresolved,
+Peniagone sp. 2,2,benthic_invert,ancestry,Holothuroidea
+probe,2,equipment,ancestry,equipment
+Rosacea,2,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Bathymetrinae,2,benthic_invert,ancestry,Crinoidea
+Lamoha,2,,unresolved,
+Bonelliidae,2,benthic_invert,ancestry,Polychaeta
+Coryphaenoides filifer,2,fish,ancestry,Actinopterygii;Macrouridae
+Solemyidae,2,benthic_invert,ancestry,Bivalvia
+Spectrunculus grandis,2,fish,ancestry,Actinopterygii;Ophidiidae
+Careproctus kamikawai,2,fish,ancestry,Actinopterygii;Careproctus
+Rhodaliidae,2,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Bathyraja,2,fish,ancestry,Elasmobranchii;Rajiformes
+Haliscera conica,2,gelatinous,ancestry,Hydrozoa
+Delectopecten sp.,2,,unresolved,
+Corallium,2,reef,ancestry,Anthozoa;Gorgonacea
+Chrysogorgia pinnata,2,reef,ancestry,Anthozoa;Gorgonacea
+Abraliopsis,2,,unresolved,
+Narcomedusae,2,gelatinous,ancestry,Hydrozoa
+Munida sp.,2,,unresolved,
+inner filter,2,,unresolved,
+Ampheraster sp.,2,,unresolved,
+Parophrys vetulus,2,fish,ancestry,Actinopterygii;Pleuronectiformes
+Pedicellasteridae,2,benthic_invert,ancestry,Asteroidea
+Lophiiformes,2,fish,ancestry,Actinopterygii
+Bathochordaeinae,2,gelatinous,ancestry,Larvacea
+Sardinops sagax,2,fish,ancestry,Actinopterygii
+Sebastes entomelas,2,fish,ancestry,Actinopterygii;Sebastes
+Munidopsidae,2,benthic_invert,ancestry,Decapoda
+cage,2,equipment,ancestry,equipment
+tire,2,debris,ancestry,trash
+Beryx decadactylus,2,,unresolved,
+Victorgorgia,2,,unresolved,
+Biology box,2,equipment,ancestry,equipment
+CO2 Corral,2,equipment,ancestry,equipment
+Physophora hydrostatica,2,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Gadiformes,2,fish,ancestry,Actinopterygii
+Alvinocaris costaricensis,2,,unresolved,
+Ridgeia,2,benthic_invert,ancestry,Polychaeta
+Heteralepas,2,,unresolved,
+Munida bapensis,2,benthic_invert,ancestry,Decapoda
+Lycodes,2,fish,ancestry,Actinopterygii;Zoarcidae
+Lyopsetta exilis,2,fish,ancestry,Actinopterygii;Pleuronectiformes
+Agonidae,2,fish,ancestry,Actinopterygii
+Bolosoma,2,,unresolved,
+Marrus,2,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Enteroctopus,2,benthic_invert,ancestry,Octopoda
+Narella,2,reef,ancestry,Anthozoa;Gorgonacea
+Mesochordaeus erythrocephalus,2,gelatinous,ancestry,Larvacea
+Eretmichthys pinnatus,2,fish,ancestry,Actinopterygii;Ophidiidae
+Distichoptilum,2,reef,ancestry,Anthozoa;Gorgonacea
+Cherublemma emmelas,2,fish,ancestry,Actinopterygii;Ophidiidae
+Myxoderma,2,benthic_invert,ancestry,Asteroidea
+Chuniphyes multidentata,2,gelatinous,ancestry,Hydrozoa;Siphonophorae
+Sperosomatinae sp.1,2,,unresolved,
+Pseudomunida fragilis,2,,unresolved,
+Sibogagorgia,2,reef,ancestry,Anthozoa;Gorgonacea
+Proisocrinus ruberrimus,2,,unresolved,
+Tromikosoma,2,benthic_invert,ancestry,Echinoidea
+Rossellidae,2,reef,ancestry,Porifera
+Oikopleura,2,gelatinous,ancestry,Larvacea
+Chonelasmatinae sp. 1,2,reef,ancestry,Porifera
+Laetmogone wyvillethomsoni,2,benthic_invert,ancestry,Holothuroidea
+outer filter,2,,unresolved,
+bottle,2,debris,ancestry,trash
+Urophycis cirrata,2,,unresolved,
+Acesta mori,2,benthic_invert,ancestry,Bivalvia
+Osmeriformes,2,fish,ancestry,Actinopterygii
+Sebastes elongatus,2,fish,ancestry,Actinopterygii;Sebastes
+Camptoplites sp. A,1,,unresolved,
+Phoca vitulina richardii,1,,unresolved,
+Gonatus berryi,1,,unresolved,
+Moridae,1,fish,ancestry,Actinopterygii
+Pandalus danae,1,,unresolved,
+Calliarthron,1,,unresolved,
+Clavelina huntsmani,1,,unresolved,
+Calyptogena,1,benthic_invert,ancestry,Bivalvia
+Epialtidae,1,,unresolved,
+Cidaris cidaris,1,,unresolved,
+Poliopogon sp.,1,,unresolved,
+Pleurogorgia militaris,1,,unresolved,
+Diogenidae,1,benthic_invert,ancestry,Decapoda
+Urticina piscivora,1,,unresolved,
+Centrostephanus coronatus,1,,unresolved,
+Pleurobranchidae,1,,unresolved,
+Aeolidia,1,benthic_invert,ancestry,Gastropoda
+Doryteuthis opalescens,1,,unresolved,
+Alcyonacea,1,reef,ancestry,Anthozoa;Gorgonacea
+Barathrites,1,fish,ancestry,Actinopterygii;Ophidiidae
+sea squirt,1,,unresolved,
+Proisocrinidae,1,,unresolved,
+Phymorhynchus,1,,unresolved,
+lobed ctenophore,1,,unresolved,
+Fritillaria,1,gelatinous,ancestry,Larvacea
+Calocarcinus,1,,unresolved,
+Heteroscleromorpha,1,,unresolved,
+Coronaster halicepus,1,,unresolved,
+Heteropathes pacifica,1,,unresolved,
+Narella calamus,1,,unresolved,
+siphon,1,,unresolved,
+Chrysogorgia stellata,1,,unresolved,
+net,1,debris,ancestry,trash
+Gonatopsis octopedatus,1,,unresolved,
+Anthoptilidae,1,reef,ancestry,Anthozoa;Gorgonacea
+Elpidia,1,benthic_invert,ancestry,Holothuroidea
+Amphianthus sp.,1,,unresolved,
+Thalassocalycida,1,gelatinous,ancestry,Ctenophora
+Halcurias,1,,unresolved,
+Bullagummizoanthus emilyacadiaarum,1,,unresolved,
+eggs,1,,unresolved,
+Heteropathes,1,reef,ancestry,Anthozoa
+Beroe gracilis,1,gelatinous,ancestry,Beroe;Ctenophora
+Solmarisidae,1,gelatinous,ancestry,Hydrozoa
+Marine organism,1,,unresolved,
+Branchiocerianthus imperator,1,gelatinous,ancestry,Hydrozoa
+Acoustic Doppler Current Profiler,1,equipment,ancestry,equipment
+mooring,1,equipment,ancestry,equipment
+calycophoran siphonophore,1,,unresolved,
+Ilyophis,1,,unresolved,
+Sympagurus dofleini,1,,unresolved,
+Sebastes cortezi,1,fish,ancestry,Actinopterygii;Sebastes
+Ophidiiformes,1,fish,ancestry,Actinopterygii
+Opisthoteuthis,1,benthic_invert,ancestry,Octopoda
+Lyssacinosida,1,reef,ancestry,Porifera
+Incirrata,1,benthic_invert,ancestry,Octopoda
+Octacnemus sp. 1,1,,unresolved,
+Rhinochimaeridae,1,fish,ancestry,Chimaeriformes
+Cataetyx rubrirostris,1,fish,ancestry,Actinopterygii
+Iridogorgia bella,1,,unresolved,
+Physiculus rastrelliger,1,fish,ancestry,Actinopterygii
+Tarsastrocles verrilli,1,,unresolved,
+Stelodoryx,1,,unresolved,
+Calibelemnon symmetricum,1,,unresolved,
+Eknomisis,1,,unresolved,
+Antiopella,1,,unresolved,
+Grammatonotus laysanus,1,,unresolved,
+Callogorgia robusta,1,,unresolved,
+Callogorgia,1,,unresolved,
+Antipathes,1,reef,ancestry,Anthozoa
+Animalia,1,,unresolved,
+Latreillia metanesa,1,,unresolved,
+Corbitellinae,1,reef,ancestry,Porifera
+Gilbertaster,1,,unresolved,
+Lycenchelys sp. 1,1,fish,ancestry,Actinopterygii;Zoarcidae
+Thaumatocrinus rugosus,1,,unresolved,
+Hexactinella,1,reef,ancestry,Porifera
+Anthomastus,1,reef,ancestry,Anthozoa;Gorgonacea
+Sphaeriodiscus,1,,unresolved,
+Jasonisis,1,,unresolved,
+Hollardia,1,fish,ancestry,Actinopterygii
+Euretidae,1,reef,ancestry,Porifera
+Detritus Sampler,1,equipment,ancestry,equipment
+Calyptrophora diaphana,1,,unresolved,
+hairpin enteropneust fecal cast,1,,unresolved,
+Stereochlamis,1,,unresolved,
+Parastichopus,1,benthic_invert,ancestry,Holothuroidea
+physonect siphonophore,1,,unresolved,
+Euryplegma,1,,unresolved,
+Tarletonbeania,1,fish,ancestry,Actinopterygii;Myctophidae
+Brotula multibarbata,1,,unresolved,
+Patiria miniata,1,benthic_invert,ancestry,Asteroidea
+Apristurus brunneus,1,fish,ancestry,Elasmobranchii
+Lycodapus fierasfer,1,fish,ancestry,Actinopterygii;Zoarcidae
+Aegidae,1,,unresolved,
+pyrosome,1,,unresolved,
+Stolonifera,1,reef,ancestry,Anthozoa;Gorgonacea
+Sebastes crameri,1,fish,ancestry,Actinopterygii;Sebastes
+Rossellinae,1,reef,ancestry,Porifera
+Iliophys cf. arx,1,,unresolved,
+black coral,1,,unresolved,
+urchin,1,,unresolved,
+Styelidae,1,,unresolved,
+Hydromedusae,1,gelatinous,ancestry,Hydrozoa
+Ellisellidae,1,,unresolved,
+Paracalyptrophora hawaiiensis,1,,unresolved,
+Pleurochorium,1,,unresolved,
+Euplexaura,1,,unresolved,
+Anthomastus tahinodus,1,,unresolved,
+Phyllochaetopterus gigas,1,benthic_invert,ancestry,Polychaeta
+Henricia,1,benthic_invert,ancestry,Asteroidea
+Munnopsurus,1,benthic_invert,ancestry,Isopoda
+Tridacna,1,,unresolved,
+Scorpaena plumieri,1,,unresolved,
+Aglantha,1,gelatinous,ancestry,Hydrozoa
+BED,1,,unresolved,
+Octopus,1,benthic_invert,ancestry,Octopoda
+Uroptychus sp.,1,,unresolved,
+Fecampiid eggcase,1,,unresolved,
+Bellonella,1,,unresolved,
+Lycodes pacificus,1,fish,ancestry,Actinopterygii;Zoarcidae
+Bonelliida,1,benthic_invert,ancestry,Polychaeta
+Amblyraja hyperborea,1,fish,ancestry,Elasmobranchii;Rajiformes
+Icichthys lockingtoni,1,fish,ancestry,Actinopterygii
+Vibracorer,1,equipment,ancestry,equipment
+Bolosominae,1,reef,ancestry,Porifera
+Stylasteridae	,1,,unresolved,
+burrow,1,,unresolved,
+Sergestoidea,1,benthic_invert,ancestry,Decapoda
+Lycodinae,1,fish,ancestry,Actinopterygii;Zoarcidae
+Sladenia zhui,1,,unresolved,
+Radiozoa,1,,unresolved,
+Eualus townsendi,1,,unresolved,
+Pyloderma,1,,unresolved,
+Cephalopoda,1,,unresolved,
+test,1,,unresolved,
+Asbestopluma sp.,1,,unresolved,
+Chorilia sp.,1,,unresolved,
+Iosactis,1,benthic_invert,ancestry-specific,Actiniaria;Anthozoa
+Polyplacophora,1,,unresolved,
+Eopsetta jordani,1,fish,ancestry,Actinopterygii;Pleuronectiformes
+Actinostola sp.,1,,unresolved,
+Solanderia,1,,unresolved,
+Plumarella circumoperculum,1,,unresolved,
+Chionoecetes sp.,1,,unresolved,
+Clavularia sp.,1,,unresolved,
+Parantipathes,1,reef,ancestry,Anthozoa
+Ceriantharia sp. 1,1,reef,ancestry,Anthozoa
+Eumedusa,1,gelatinous,ancestry,Hydrozoa
+Sebastes pinniger,1,fish,ancestry,Actinopterygii;Sebastes
+Hertwigia,1,,unresolved,
+rock,1,,unresolved,
+Pandalidae,1,benthic_invert,ancestry,Decapoda
+Metallogorgia melanotrichos,1,,unresolved,
+medusa,1,,unresolved,
+Bassogigas,1,,unresolved,
+Lithodoidea,1,benthic_invert,ancestry,Decapoda
+Sabellida?,1,,unresolved,
+Staurocalyptus solidus ,1,,unresolved,
+Plinthaster,1,,unresolved,
+Holothuria (Vaneyothuria) zacae,1,benthic_invert,ancestry,Holothuroidea
+Pontinus furcirhinus,1,fish,ancestry,Actinopterygii;Scorpaenidae
+Oikopleuridae,1,gelatinous,ancestry,Larvacea
+Graneledone,1,benthic_invert,ancestry,Octopoda
+Cystisoma,1,,unresolved,
+Thermopalia,1,gelatinous,ancestry,Hydrozoa;Physonectae;Siphonophorae
+Careproctus filamentosus,1,fish,ancestry,Actinopterygii;Careproctus
+Polychaeta sp.,1,,unresolved,
+Hemicorallium laauense,1,,unresolved,
+Mitrocomidae,1,gelatinous,ancestry,Hydrozoa
+Coryphaenoides capito,1,fish,ancestry,Actinopterygii;Macrouridae
+sand,1,,unresolved,
+Pachycara,1,fish,ancestry,Actinopterygii;Zoarcidae
+decapoda,1,,unresolved,
+Sternostylus perarmatus,1,benthic_invert,ancestry,Decapoda
+coral transplant container,1,equipment,ancestry,equipment
+Sternostylus,1,benthic_invert,ancestry,Decapoda
+Macroregonia macrochira,1,benthic_invert,ancestry,Decapoda
+Physiculus nematopus,1,fish,ancestry,Actinopterygii
+Paralithodes rathbuni,1,benthic_invert,ancestry,Decapoda
+kelp holdfast,1,,unresolved,
+Hydrolagus melanophasma,1,fish,ancestry,Chimaeriformes
+Sicyonis sp.,1,,unresolved,
+Osteodiscus,1,fish,ancestry,Actinopterygii
+Holothuroidea sp. 7,1,benthic_invert,ancestry,Holothuroidea
+Cirolanidae,1,,unresolved,
+Leptogorgia,1,reef,ancestry,Anthozoa;Gorgonacea
+Stomphia sp.,1,,unresolved,
+Tomopteridae,1,benthic_invert,ancestry,Polychaeta
+Poralia sp.,1,,unresolved,
+Cancridae,1,benthic_invert,ancestry,Decapoda
+Kophobelemnon,1,reef,ancestry,Anthozoa;Gorgonacea
+Physiculus sp. 1,1,fish,ancestry,Actinopterygii
+Bathyalcyon,1,reef,ancestry,Anthozoa;Gorgonacea
+Clio,1,benthic_invert,ancestry,Gastropoda
+Dibranchus,1,fish,ancestry,Actinopterygii
+Scaphopoda,1,,unresolved,
+Aspidoscopulia,1,,unresolved,
+Sebastes ovalis,1,fish,ancestry,Actinopterygii;Sebastes
+Tomopterid eggcase,1,benthic_invert,ancestry,Polychaeta
+Neogastropoda,1,benthic_invert,ancestry,Gastropoda
+Stenorhynchus seticornis,1,,unresolved,
+Emblemariopsis,1,,unresolved,
+Tergivelum sp. A,1,,unresolved,
+Eutonina indicans,1,gelatinous,ancestry,Hydrozoa
+Halitrephes,1,gelatinous,ancestry,Hydrozoa
+Hexactinellida sp. 4,1,reef,ancestry,Porifera
+Dibranchus sp. A,1,fish,ancestry,Actinopterygii
+sheet flow,1,,unresolved,
+Sebastes phillipsi,1,fish,ancestry,Actinopterygii;Sebastes
+Hormiphora,1,gelatinous,ancestry,Ctenophora
+Japetella diaphana,1,benthic_invert,ancestry,Octopoda
+rock outcrop,1,,unresolved,
+Poraniopsis,1,benthic_invert,ancestry,Asteroidea
+Beroida,1,gelatinous,ancestry,Ctenophora
+Bathypathes cf. conferta,1,,unresolved,
+Enteropneusta,1,,unresolved,
+Macrourinae,1,fish,ancestry,Actinopterygii;Macrouridae
+Hyocrinus,1,benthic_invert,ancestry,Crinoidea
+Thalassocalyce,1,,unresolved,
+Sebastes jordani,1,fish,ancestry,Actinopterygii;Sebastes
+larvacean house,1,,unresolved,
+Hansenothuria,1,,unresolved,
+Parastichopus leukothele,1,,unresolved,
+Sebastes goodei,1,fish,ancestry,Actinopterygii;Sebastes
+bottle-2,1,debris,ancestry,trash
+rope,1,debris,ancestry,trash
+Myxoderma sacculatum,1,benthic_invert,ancestry,Asteroidea
+Eualus macrophthalmus,1,benthic_invert,ancestry,Decapoda
+Bolinopsis infundibulum,1,gelatinous,ancestry,Bolinopsis;Ctenophora
+Gonatus onyx,1,,unresolved,
+Benthic Respiration System,1,equipment,ancestry,equipment
+Coryphaenoides armatus-leptolepis-yaquinae complex,1,fish,ancestry,Actinopterygii;Macrouridae
+military apparatus,1,debris,ancestry,trash
+Alcyonium varum,1,reef,ancestry,Anthozoa;Gorgonacea
+Penaeoidea,1,benthic_invert,ancestry,Decapoda
+Luciobrotula sp. A,1,fish,ancestry,Actinopterygii;Ophidiidae
+Zebrasoma flavescens,1,,unresolved,
+Pagurus,1,benthic_invert,ancestry,Decapoda;Paguridae
+Scrippsia pacifica,1,gelatinous,ancestry,Hydrozoa
+Creseis virgula,1,benthic_invert,ancestry,Gastropoda
+Macroprimnoa ornata,1,,unresolved,
+Sebastes ensifer,1,fish,ancestry,Actinopterygii;Sebastes
+Nemichthyidae,1,fish,ancestry,Actinopterygii
+Porifera sp. 1,1,reef,ancestry,Porifera
+Tonrometra,1,benthic_invert,ancestry,Crinoidea
+Octacnemidae,1,,unresolved,
+Farrea truncata complex,1,reef,ancestry,Porifera
+Tochuina gigantea,1,benthic_invert,ancestry,Gastropoda
+Hyocrinida,1,benthic_invert,ancestry,Crinoidea
+Careproctus longifilis,1,fish,ancestry,Actinopterygii;Careproctus
+Pomacentridae,1,fish,ancestry,Actinopterygii
+Acanthuridae,1,fish,ancestry,Actinopterygii
+Scaridae,1,,unresolved,
+Echinothrix,1,,unresolved,
+Forcipiger flavissimus,1,,unresolved,
+Pennatulacea sp. 1,1,reef,ancestry,Anthozoa;Gorgonacea;Pennatulacea
+Lumpenus sagitta,1,fish,ancestry,Actinopterygii
+Epizoanthidae,1,reef,ancestry,Anthozoa
+Icelinus,1,fish,ancestry,Actinopterygii
+Munida sp. A,1,benthic_invert,ancestry,Decapoda
+Virgularia,1,reef,ancestry,Anthozoa;Gorgonacea
+Firesting O2-temp sensor,1,equipment,ancestry,equipment
+Umbellapathes,1,reef,ancestry,Anthozoa
+Psamminidae sp. 2,1,,unresolved,
+Eye-in-the-Sea,1,equipment,ancestry,equipment
+Benthic Rover,1,equipment,ancestry,equipment
+Bathydorus sp. 1,1,reef,ancestry,Porifera
+Tomopteris nisseni,1,benthic_invert,ancestry,Polychaeta
+Dipsacaster eximius,1,benthic_invert,ancestry,Asteroidea
+Swima,1,benthic_invert,ancestry,Polychaeta
+Scalpelliformes,1,,unresolved,
+Homerpro,1,equipment,ancestry,equipment
+Rhodaniridogorgia,1,,unresolved,
+Porifera sp. 4,1,reef,ancestry,Porifera
+Sibogagorgia cauliflora,1,reef,ancestry,Anthozoa;Gorgonacea
+Ampheraster,1,benthic_invert,ancestry,Asteroidea
+Asteroidea sp. 1,1,benthic_invert,ancestry,Asteroidea
+Tenebrincola cukri,1,benthic_invert,ancestry,Gastropoda
+human,1,,unresolved,
+Chaetodon striatus,1,,unresolved,
+Lutjanus apodus,1,,unresolved,
+Haemulon sciurus,1,,unresolved,
+Luidia foliolata,1,benthic_invert,ancestry,Asteroidea
+Leuroglossus stilbius,1,fish,ancestry,Actinopterygii;Bathylagidae
+Bathyteuthis,1,,unresolved,
+amphipod tube mat,1,,unresolved,
+Psychropotes sp. 1,1,benthic_invert,ancestry,Holothuroidea
+Mediaster aequalis ,1,,unresolved,
+Zoroaster sp.,1,,unresolved,
+wood,1,,unresolved,
+Gobiidae,1,fish,ancestry,Actinopterygii
+Hymenaster sp.,1,,unresolved,
+Parapagurus sp.,1,,unresolved,
+mung,1,,unresolved,
+Virgulariidae,1,reef,ancestry,Anthozoa;Gorgonacea

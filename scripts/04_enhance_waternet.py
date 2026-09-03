@@ -115,10 +115,32 @@ def main() -> int:
                          "be a subdirectory of --unified")
     ap.add_argument("--checkpoint", default=str(ROOT / "models" / "waternet_checkpoint" / "coarse_112"))
     ap.add_argument("--dry-run", action="store_true", help="count work, load nothing, write nothing")
+    ap.add_argument("--clean", action="store_true",
+                    help="wipe <out>/images and <out>/labels first. REQUIRED when the "
+                         "taxonomy changed since the last build -- stale images left in "
+                         "images/<split>/ are trained on regardless, carrying label "
+                         "indices from the superseded taxonomy")
+    ap.add_argument("--cpu", action="store_true",
+                    help="force CPU. ~1.2 s/image vs ~0.1 on GPU, but it always works. "
+                         "Needed when the venv has a mixed CUDA stack: TensorFlow ships "
+                         "against CUDA 12 (nvidia-*-cu12) while torch >=2.13 pulls CUDA 13 "
+                         "(nvidia-*, unsuffixed), and both unpack into the SAME "
+                         "site-packages/nvidia/<lib>/ directories. The later install wins "
+                         "per-file, leaving e.g. cuDNN 9.20's libcudnn_graph.so.9 beside "
+                         "9.25's libcudnn_ext.so.9 -- components that must match. The "
+                         "symptom is 'Cudnn graph failed to build ... "
+                         "CUDNN_BACKEND_TENSOR_DESCRIPTOR cudnnFinalize failed' on the "
+                         "first conv, NOT an out-of-memory. Real fix: keep TensorFlow and "
+                         "torch in separate venvs.")
     ap.add_argument("--limit", type=int, default=None,
                     help="process at most N images (debugging / smoke-testing a checkpoint)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
+
+    # Must be set before TensorFlow initialises CUDA, i.e. before the import
+    # inside the enhancement block below.
+    if args.cpu:
+        os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
     setup_logging(args.verbose)
     conf = yaml.safe_load(Path(args.datasets_config).read_text(encoding="utf-8"))
@@ -154,6 +176,38 @@ def main() -> int:
     if args.dry_run:
         log.info("dry run -- nothing written")
         return 0
+
+    # ---- stale-corpus guard ------------------------------------------------ #
+    # Same hazard as scripts/03_unify_datasets.py, and worse here: this corpus
+    # is what training actually reads, and dataset.yaml points Ultralytics at
+    # images/train as a DIRECTORY. Every file left over from a previous build
+    # therefore gets trained on -- including images from sources since disabled,
+    # carrying labels whose class indices belong to a superseded taxonomy.
+    # `already_done()` then skips re-enhancing them, so they persist silently.
+    # --clean ALWAYS wipes -- never conditional on the taxonomy having changed.
+    # already_done() skips any image whose output file already exists, so a
+    # stale file is not merely left behind, it is actively preserved. And a
+    # leftover keeps the split directory it was written into, so an image that
+    # moved train->val between builds ends up in both. See the matching note in
+    # scripts/03_unify_datasets.py.
+    prev_yaml = out_root / "dataset.yaml"
+    if args.clean:
+        log.warning("--clean: wiping %s/{images,labels}", out_root)
+        for sub in ("images", "labels"):
+            shutil.rmtree(out_root / sub, ignore_errors=True)
+    elif prev_yaml.exists():
+        prev = yaml.safe_load(prev_yaml.read_text(encoding="utf-8")).get("names") or {}
+        cur = yaml.safe_load((unified / "dataset.yaml").read_text(encoding="utf-8")).get("names") or {}
+        if {int(k): v for k, v in prev.items()} != {int(k): v for k, v in cur.items()}:
+            log.error(
+                "%s was built with a DIFFERENT taxonomy:\n"
+                "    on disk: %s\n"
+                "    now:     %s\n"
+                "Enhancing in place would leave stale images in images/<split>/ that "
+                "training reads as if they were current, with label indices from the "
+                "old taxonomy. Re-run with --clean.",
+                out_root, prev, cur)
+            return 2
 
     for split in ("train", "val", "test"):
         (out_root / "images" / split).mkdir(parents=True, exist_ok=True)

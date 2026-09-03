@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import shutil
 import hashlib
 import logging
 import sys
@@ -264,6 +265,29 @@ def assign_splits(items: list[Mapped], split_cfg: dict) -> None:
         else:
             m.split = "test"
 
+    # A group is the unit being assigned, so a source with very few groups
+    # cannot approximate 80/10/10 no matter how many images it has -- it lands
+    # wholesale in one or two splits, silently starving whatever classes it
+    # dominates of val/test data. This has now been a real bug three times
+    # (brackish, vddc, trashcan; see the notes in configs/datasets.yaml), each
+    # time from a `group.pattern` that matched less of the filename than
+    # intended, and each time it was found only after a training run produced
+    # unmeasurable per-class numbers. Check it here instead.
+    per_ds: dict[str, set[str]] = defaultdict(set)
+    landed: dict[str, set[str]] = defaultdict(set)
+    counts: Counter = Counter()
+    for m in items:
+        per_ds[m.sample.dataset].add(m.sample.group)
+        landed[m.sample.dataset].add(m.split)
+        counts[m.sample.dataset] += 1
+    for ds, groups in sorted(per_ds.items()):
+        if len(groups) < 10 and counts[ds] >= 100:
+            log.warning(
+                "[%s] only %d group(s) for %d images -- the split assigns whole "
+                "groups, so this source landed in %s. Check `group.pattern` in "
+                "configs/datasets.yaml actually captures the video/dive id.",
+                ds, len(groups), counts[ds], "/".join(sorted(landed[ds])))
+
 
 # --------------------------------------------------------------------------- #
 # Writing
@@ -373,6 +397,11 @@ def main() -> int:
                     help="restrict to these sources (repeatable)")
     ap.add_argument("--dry-run", action="store_true",
                     help="count and report, write nothing")
+    ap.add_argument("--clean", action="store_true",
+                    help="wipe <out>/images and <out>/labels before writing. REQUIRED when "
+                         "the taxonomy changed since the last build -- label files store "
+                         "class indices, so stale files silently re-point at whatever class "
+                         "now occupies their old index")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
@@ -438,6 +467,43 @@ def main() -> int:
         print()
         log.info("dry run -- nothing written")
         return 0
+
+    # ---- stale-corpus guard ------------------------------------------------ #
+    # Writing is per-file into directories that are reused, never cleared, so a
+    # rebuild leaves behind every image the previous build wrote and this one
+    # didn't. That is harmless when only the image SET changed, and silently
+    # catastrophic when the TAXONOMY changed: label files are class INDICES, so
+    # stale labels from an older taxonomy keep their old numbers and now point
+    # at whatever class happens to occupy that index today. (Retiring
+    # rope_net/vessel/buoy_marker in v2 shifted every index above 4.)
+    #
+    # Compare the taxonomy the existing corpus was built with against the one
+    # being used now, and refuse rather than blend them.
+    # --clean ALWAYS wipes. It must not be conditional on the taxonomy having
+    # changed: the image SET also shifts whenever a cap, stride, dedupe
+    # threshold or group pattern changes, and a leftover file from the previous
+    # build keeps the split it was written into. An image that moves train->val
+    # between builds then exists in BOTH, which is silent train/val leakage --
+    # the exact failure the group-aware split exists to prevent. (Observed:
+    # fixing trashcan's group pattern left 576 stale images, 484 of them
+    # duplicated across two splits.)
+    existing_yaml = out_root / "dataset.yaml"
+    if args.clean:
+        log.warning("--clean: wiping %s/{images,labels}", out_root)
+        for sub in ("images", "labels"):
+            shutil.rmtree(out_root / sub, ignore_errors=True)
+    elif existing_yaml.exists():
+        prev = yaml.safe_load(existing_yaml.read_text(encoding="utf-8")).get("names") or {}
+        if {int(k): v for k, v in prev.items()} != dict(tax.names):
+            log.error(
+                "%s was built with a DIFFERENT taxonomy:\n"
+                "    on disk: %s\n"
+                "    now:     %s\n"
+                "Rebuilding in place would mix label files whose class indices mean "
+                "different things. Re-run with --clean to wipe images/ and labels/ "
+                "first, or point --out somewhere new.",
+                out_root, prev, dict(tax.names))
+            return 2
 
     # ---- write ------------------------------------------------------------- #
     for split in ("train", "val", "test"):
