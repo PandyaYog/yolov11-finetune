@@ -492,6 +492,14 @@ def main() -> int:
         log.warning("--clean: wiping %s/{images,labels}", out_root)
         for sub in ("images", "labels"):
             shutil.rmtree(out_root / sub, ignore_errors=True)
+        # Also drop the per-domain evaluation artifacts written by
+        # scripts/05b/05c (val_surface.txt, dataset_test_submerged.yaml, ...).
+        # They list image names by hand, so after a rebuild they point at files
+        # that no longer exist -- and because they live at the corpus ROOT
+        # rather than under images/ or labels/, wiping those two directories
+        # left them behind to be silently reused.
+        for stale in list(out_root.glob("*_submerged.*")) + list(out_root.glob("*_surface.*")):
+            stale.unlink(missing_ok=True)
     elif existing_yaml.exists():
         prev = yaml.safe_load(existing_yaml.read_text(encoding="utf-8")).get("names") or {}
         if {int(k): v for k, v in prev.items()} != dict(tax.names):

@@ -1,15 +1,27 @@
 #!/usr/bin/env python
 """Final held-out check: evaluate a trained checkpoint against the test
 split -- the one corpus slice neither training nor the per-epoch validation
-checks ever touch -- overall and split by domain (submerged vs surface).
+checks ever touch.
+
+Reports headline metrics plus a per-class table, which is the part that
+matters: a single mAP says nothing about WHICH class is failing, and that is
+exactly how flora sat at 0.019 and structure at 0.078 behind a respectable-
+looking 0.53 average.
+
+If the corpus spans more than one domain it additionally breaks the numbers
+down per domain. Since taxonomy v2 retired the surface sources the corpus is
+entirely submerged, so that breakdown is skipped automatically -- there is
+nothing to separate. Re-enable any surface source in configs/datasets.yaml
+and the per-domain reporting comes back on its own; see src/uwd/domain_eval.py.
 
 Meant to run once, after you're done iterating on a training run, not as a
 repeated tuning signal (that's what val -- scripts/05b_validate_by_domain.py
 -- is for; using test to guide hyperparameter choices defeats the point of
 holding it out).
 
-See src/uwd/domain_eval.py for why domain matters here and how it's
-determined.
+NOTE: a checkpoint is only comparable to a corpus built with the SAME
+taxonomy. v1 checkpoints (11 classes) will silently mis-map against a v2
+corpus (8 classes), because labels are class INDICES.
 
 Usage
     # matches the workflow described when this was built: train on Kaggle,
@@ -29,7 +41,10 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from uwd.domain_eval import build_domain_split_lists, print_domain_report, write_domain_yaml  # noqa: E402
+from uwd.domain_eval import (  # noqa: E402
+    build_domain_split_lists, check_taxonomy_match, domains_in_split,
+    print_domain_report, print_report, write_domain_yaml,
+)
 from uwd.util import log, setup_logging  # noqa: E402
 
 
@@ -71,29 +86,39 @@ def main() -> int:
             log.error("%s not found: %s", label, p)
             return 1
 
+    conf = yaml.safe_load(Path(args.datasets_config).read_text(encoding="utf-8"))
+    domain_of = {name: cfg.get("domain") for name, cfg in conf["datasets"].items()}
+    present = domains_in_split(manifest_path, domain_of, "test")
+    if not present:
+        log.error("no test images have a known domain -- check %s gives every enabled "
+                  "source a `domain: submerged|surface`", args.datasets_config)
+        return 1
+
     from ultralytics import YOLO
 
     model = YOLO(str(weights))
+    if not check_taxonomy_match(model, data_yaml):
+        return 1
 
-    if args.no_domain_split:
+    # A breakdown across one domain is just the blended number with extra
+    # steps, and building it anyway writes an empty image list for the absent
+    # domain that Ultralytics then fails on without naming the cause. Since
+    # taxonomy v2 retired the surface sources this is the normal case, not an
+    # edge case -- so take the plain path and say why.
+    if args.no_domain_split or len(present) == 1:
+        only = next(iter(present))
+        if len(present) == 1 and not args.no_domain_split:
+            log.info("corpus is entirely '%s' (%d test images) -- reporting one table, "
+                     "no domain split", only, present[only])
         r = model.val(data=str(data_yaml), split="test",
                       imgsz=args.imgsz, batch=args.batch, device=args.device,
                       augment=args.augment, plots=False, verbose=False)
-        print()
-        print(f"[test] mAP50={r.box.map50:.4f}  mAP50-95={r.box.map:.4f}  "
-             f"precision={r.box.mp:.4f}  recall={r.box.mr:.4f}")
+        print_report("test", r, sum(present.values()),
+                     label=only if len(present) == 1 else "all")
         return 0
-
-    conf = yaml.safe_load(Path(args.datasets_config).read_text(encoding="utf-8"))
-    domain_of = {name: cfg.get("domain") for name, cfg in conf["datasets"].items()}
 
     corpus_root = data_yaml.parent
     test_lists = build_domain_split_lists(manifest_path, domain_of, corpus_root, "test")
-    empty = [d for d, p in test_lists.items() if p.stat().st_size == 0]
-    if empty:
-        log.error("no test images found for domain(s): %s -- check %s has a `domain` for "
-                  "every enabled source", ", ".join(empty), args.datasets_config)
-        return 1
 
     results = {}
     for domain, test_list in test_lists.items():
